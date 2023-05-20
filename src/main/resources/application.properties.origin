@@ -1,0 +1,12 @@
+bot.name=
+bot.token=
+bot.owner=
+
+# DB relation settings
+spring.jpa.hibernate.ddl-auto=
+spring.datasource.url=
+spring.datasource.username=
+spring.datasource.password=
+spring.datasource.driver-class-name=
+spring.jpa.database-platform=
+spring.jpa.show-sql=true
