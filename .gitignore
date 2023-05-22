@@ -72,8 +72,9 @@ hs_err_pid*
 
 .mvn
 src/test
+src/files
 mvnw
 mvnw.cmd
-
+/src/main/resources/model
 **application.properties
 

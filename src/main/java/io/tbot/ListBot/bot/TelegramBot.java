@@ -1,59 +1,50 @@
 package io.tbot.ListBot.bot;
 
 import com.vdurmont.emoji.EmojiParser;
+import io.tbot.ListBot.command.BotCommands;
+import io.tbot.ListBot.command.InlineButtons;
 import io.tbot.ListBot.config.BotConfig;
 import io.tbot.ListBot.model.User;
-import io.tbot.ListBot.model.UserRepository;
+import io.tbot.ListBot.repositories.UserRepository;
+import io.tbot.ListBot.service.recognizeSpeech.AudioDecoder;
+import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.telegram.telegrambots.bots.TelegramLongPollingBot;
+import org.telegram.telegrambots.meta.api.methods.GetFile;
 import org.telegram.telegrambots.meta.api.methods.commands.SetMyCommands;
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
 import org.telegram.telegrambots.meta.api.methods.updatingmessages.EditMessageText;
-import org.telegram.telegrambots.meta.api.objects.Chat;
-import org.telegram.telegrambots.meta.api.objects.Message;
-import org.telegram.telegrambots.meta.api.objects.Update;
-import org.telegram.telegrambots.meta.api.objects.commands.BotCommand;
+import org.telegram.telegrambots.meta.api.objects.*;
 import org.telegram.telegrambots.meta.api.objects.commands.scope.BotCommandScopeDefault;
-import org.telegram.telegrambots.meta.api.objects.replykeyboard.InlineKeyboardMarkup;
-import org.telegram.telegrambots.meta.api.objects.replykeyboard.ReplyKeyboardMarkup;
-import org.telegram.telegrambots.meta.api.objects.replykeyboard.buttons.InlineKeyboardButton;
-import org.telegram.telegrambots.meta.api.objects.replykeyboard.buttons.KeyboardRow;
 import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
 
+import java.io.IOException;
+import java.io.InputStream;
+import java.net.URL;
+import java.nio.file.Files;
+import java.nio.file.Paths;
+import java.nio.file.StandardCopyOption;
 import java.sql.Timestamp;
-import java.util.ArrayList;
-import java.util.List;
 
 @Slf4j
 @Component
-public class TelegramBot extends TelegramLongPollingBot {
-
-
-    static final String HELP_TEXT = "This bot is created to demonstrate Spring capabilities.\n\n" +
-            "You can execute commands from the main menu on the left or by typing a command:" +
-            "Type /start - see a welcome message\n\n"+
-            "Type /mydata - see data stored about yourselfer\n\n"+
-            "Type /help = see this message again";
+public class TelegramBot extends TelegramLongPollingBot implements BotCommands {
 
     static final String YES_BUTTON = "YES_BUTTON";
     static final String NO_BUTTON = "NO_BUTTON";
     private final BotConfig config;
-
     @Autowired
     private UserRepository userRepository;
 
+    @Autowired
+    private InlineButtons buttons;
+
     public TelegramBot(BotConfig config) {
         this.config = config;
-        List<BotCommand> listOfCommands = new ArrayList<>();
-        listOfCommands.add(new BotCommand("/start", "get welcome message"));
-        listOfCommands.add(new BotCommand("/mydata", "get your data store"));
-        listOfCommands.add(new BotCommand("/deletedata", "delete your data"));
-        listOfCommands.add(new BotCommand("/help", "info how to use this bot"));
-        listOfCommands.add(new BotCommand("/settings", "set your references"));
         try{
-            this.execute(new SetMyCommands(listOfCommands, new BotCommandScopeDefault(), null));
+            this.execute(new SetMyCommands(LIST_OF_COMMANDS, new BotCommandScopeDefault(), null));
         } catch (TelegramApiException e) {
             log.error("Error setting bot command list: " + e.getMessage());
         }
@@ -69,6 +60,7 @@ public class TelegramBot extends TelegramLongPollingBot {
         return config.getToken();
     }
 
+    @SneakyThrows
     @Override
     public void onUpdateReceived(Update update) {
         if(update.hasMessage() && update.getMessage().hasText()){
@@ -85,10 +77,11 @@ public class TelegramBot extends TelegramLongPollingBot {
 
                 switch (messageText) {
                     case "/start":
-
-                        registerUser(update.getMessage());
-
-                        startCommandReceived(chatId, update.getMessage().getChat().getFirstName());
+                        try {
+                            startCommandReceived(chatId, update.getMessage().getChat().getFirstName());
+                        } catch (TelegramApiException e) {
+                            throw new RuntimeException(e);
+                        }
                         break;
 
                     case "/register":
@@ -115,34 +108,40 @@ public class TelegramBot extends TelegramLongPollingBot {
                 String text = "You press NO button";
                 executeEditMessageText(text, chatId, messageId);
             }
+        } else if(update.hasMessage() && update.getMessage().hasVoice()){
+            Voice voice = update.getMessage().getVoice();
+            GetFile getFileRequest = new GetFile(voice.getFileId());
+            File file;
+            try {
+                file = execute(getFileRequest);
+            } catch (TelegramApiException e) {
+                log.error("Error occurred while getting voice file: " + e.getMessage());
+                return;
+            }
+
+            String fileUrl = "https://api.telegram.org/file/bot" + getBotToken() + "/" + file.getFilePath();
+            String savePath = "src/files/sound.ogg";
+
+            try {
+                URL url = new URL(fileUrl);
+                try (InputStream in = url.openStream()) {
+                    Files.copy(in, Paths.get(savePath), StandardCopyOption.REPLACE_EXISTING);
+                    System.out.println("file upload");
+                }
+            } catch (IOException e) {
+                //log.error("Error occurred while downloading and saving voice file: " + e.getMessage());
+                e.printStackTrace();
+                return;
+            }
         }
 
-    } // переписать на webHookBot
+    }
 
     private void register(Long chatId) {
         SendMessage message = new SendMessage();
         message.setChatId(chatId);
         message.setText("Do you really want register?");
-
-        InlineKeyboardMarkup markup = new InlineKeyboardMarkup();
-
-        List<List<InlineKeyboardButton>> rowsInLine = new ArrayList<>();
-        List<InlineKeyboardButton> rowInLine = new ArrayList<>();
-        var yesButton = new InlineKeyboardButton();
-
-        yesButton.setText("yes");
-        yesButton.setCallbackData(YES_BUTTON);
-
-        var noButton = new InlineKeyboardButton();
-        noButton.setText("no");
-        noButton.setCallbackData(NO_BUTTON);
-
-        rowInLine.add(yesButton);
-        rowInLine.add(noButton);
-        rowsInLine.add(rowInLine);
-
-        markup.setKeyboard(rowsInLine);
-        message.setReplyMarkup(markup);
+        message.setReplyMarkup(buttons.registerInlineMarkup());
 
         executeMessage(message);
     }
@@ -167,44 +166,47 @@ public class TelegramBot extends TelegramLongPollingBot {
     }
 
 
-    private void startCommandReceived(long chatId, String name){
-
-        String answer = EmojiParser.parseToUnicode("Hi, " + name + ", nice to meet you" + " :blush:");
-        //String answer = "Hi, " + name + ", nice to meet you";
-
-        log.info("Replied for user" + name);
-
-        prepareAndSendMessage(chatId, answer);
-
-    }
-
-    private void sendMessage(long chatId, String textToSend){
+    private void startCommandReceived(long chatId, String name) throws TelegramApiException {
 
         SendMessage message = new SendMessage();
         message.setChatId(chatId);
-        message.setText(textToSend);
-
-        ReplyKeyboardMarkup keyboardMarkup = new ReplyKeyboardMarkup();
-
-        List<KeyboardRow> keyboardRows = new ArrayList<>();
-
-        KeyboardRow row = new KeyboardRow();
-        row.add("weather");
-        row.add("get random joke");
-        keyboardRows.add(row);
-
-        row = new KeyboardRow();
-        row.add("register");
-        row.add("check my data");
-        row.add("delete my data");
-        keyboardRows.add(row);
-
-        keyboardMarkup.setKeyboard(keyboardRows);
-
-        message.setReplyMarkup(keyboardMarkup);
-
+        String answer = EmojiParser.parseToUnicode("Hi, " + name  + " :blush:\n" +
+                "You can send me voice message");
+        message.setText(answer);
+        log.info("Replied for user" + name);
+        message.setReplyMarkup(buttons.startInlineMarkup());
         executeMessage(message);
+
+
     }
+
+//    private void sendMessage(long chatId, String textToSend){
+//
+//        SendMessage message = new SendMessage();
+//        message.setChatId(chatId);
+//        message.setText(textToSend);
+//
+//        ReplyKeyboardMarkup keyboardMarkup = new ReplyKeyboardMarkup();
+//
+//        List<KeyboardRow> keyboardRows = new ArrayList<>();
+//
+//        KeyboardRow row = new KeyboardRow();
+//        row.add("weather");
+//        row.add("get random joke");
+//        keyboardRows.add(row);
+//
+//        row = new KeyboardRow();
+//        row.add("register");
+//        row.add("check my data");
+//        row.add("delete my data");
+//        keyboardRows.add(row);
+//
+//        keyboardMarkup.setKeyboard(keyboardRows);
+//
+//        message.setReplyMarkup(keyboardMarkup);
+//
+//        executeMessage(message);
+//    }
 
     private void executeEditMessageText(String text, Long chatId, long messageId){
         EditMessageText message = new EditMessageText();
@@ -233,4 +235,5 @@ public class TelegramBot extends TelegramLongPollingBot {
         message.setText(textToSend);
         executeMessage(message);
     }
+
 }
