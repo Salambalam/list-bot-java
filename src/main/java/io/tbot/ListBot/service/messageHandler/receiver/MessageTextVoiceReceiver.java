@@ -4,8 +4,6 @@ import io.tbot.ListBot.exeptions.UnsupportedMessageFormatException;
 import lombok.SneakyThrows;
 import org.telegram.telegrambots.meta.api.objects.Update;
 
-import java.util.Optional;
-
 public class MessageTextVoiceReceiver implements MessageReceiver{
     @SneakyThrows(UnsupportedMessageFormatException.class)
     private boolean typeMessage(Update update) {
