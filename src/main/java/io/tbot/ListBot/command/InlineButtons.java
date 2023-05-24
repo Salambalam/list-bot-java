@@ -7,16 +7,16 @@ import org.telegram.telegrambots.meta.api.objects.replykeyboard.buttons.InlineKe
 import java.util.List;
 
 @Component
-public class InlineButtons {
+public class InlineButtons implements BotCommands{
     private static final InlineKeyboardButton START_BUTTON = new InlineKeyboardButton("Start");
     private static final InlineKeyboardButton SETTINGS_BUTTON = new InlineKeyboardButton("Settings");
     private static final InlineKeyboardButton HELP_BUTTON = new InlineKeyboardButton("Help");
     private static final InlineKeyboardButton YES_BUTTON = new InlineKeyboardButton("Yes");
     private static final InlineKeyboardButton NO_BUTTON = new InlineKeyboardButton("No");
     static {
-        START_BUTTON.setCallbackData("/start");
-        HELP_BUTTON.setCallbackData("/help");
-        SETTINGS_BUTTON.setCallbackData("/settings");
+        START_BUTTON.setCallbackData(BotCommands.START_COMMAND);
+        HELP_BUTTON.setCallbackData(BotCommands.HELP_COMMAND);
+        SETTINGS_BUTTON.setCallbackData(BotCommands.SETTING_COMMAND);
         YES_BUTTON.setCallbackData("YES_BUTTON");
         NO_BUTTON.setCallbackData("NO_BUTTON");
     }

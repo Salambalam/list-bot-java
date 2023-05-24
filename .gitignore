@@ -72,7 +72,7 @@ hs_err_pid*
 
 .mvn
 src/test
-src/files
+src/main/java/io/tbot/ListBot/files
 mvnw
 mvnw.cmd
 /src/main/resources/model

@@ -5,18 +5,24 @@ import io.tbot.ListBot.command.BotCommands;
 import io.tbot.ListBot.command.InlineButtons;
 import io.tbot.ListBot.config.BotConfig;
 import io.tbot.ListBot.model.User;
+import io.tbot.ListBot.parser.JsonParser;
 import io.tbot.ListBot.repositories.UserRepository;
-import io.tbot.ListBot.service.recognizeSpeech.AudioDecoder;
+import io.tbot.ListBot.service.audioProcessing.AudioDecoder;
+import lombok.Data;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 import org.telegram.telegrambots.bots.TelegramLongPollingBot;
 import org.telegram.telegrambots.meta.api.methods.GetFile;
 import org.telegram.telegrambots.meta.api.methods.commands.SetMyCommands;
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
 import org.telegram.telegrambots.meta.api.methods.updatingmessages.EditMessageText;
-import org.telegram.telegrambots.meta.api.objects.*;
+import org.telegram.telegrambots.meta.api.objects.Chat;
+import org.telegram.telegrambots.meta.api.objects.Message;
+import org.telegram.telegrambots.meta.api.objects.Update;
+import org.telegram.telegrambots.meta.api.objects.Voice;
 import org.telegram.telegrambots.meta.api.objects.commands.scope.BotCommandScopeDefault;
 import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
 
@@ -30,24 +36,29 @@ import java.sql.Timestamp;
 
 @Slf4j
 @Component
+@Data
 public class TelegramBot extends TelegramLongPollingBot implements BotCommands {
-
+    private final String SAVE_VOICE_PATH = "src/main/java/io/tbot/ListBot/files/oggFile/";
     static final String YES_BUTTON = "YES_BUTTON";
     static final String NO_BUTTON = "NO_BUTTON";
-    private final BotConfig config;
-    @Autowired
+    private BotConfig config;
     private UserRepository userRepository;
-
-    @Autowired
     private InlineButtons buttons;
 
-    public TelegramBot(BotConfig config) {
+
+    @Autowired
+    public TelegramBot(BotConfig config, UserRepository userRepository, InlineButtons buttons) {
         this.config = config;
         try{
             this.execute(new SetMyCommands(LIST_OF_COMMANDS, new BotCommandScopeDefault(), null));
         } catch (TelegramApiException e) {
             log.error("Error setting bot command list: " + e.getMessage());
         }
+        this.userRepository = userRepository;
+        this.buttons = buttons;
+    }
+
+    public TelegramBot() {
     }
 
     @Override
@@ -83,7 +94,6 @@ public class TelegramBot extends TelegramLongPollingBot implements BotCommands {
                             throw new RuntimeException(e);
                         }
                         break;
-
                     case "/register":
                         register(chatId);
                         break;
@@ -109,30 +119,9 @@ public class TelegramBot extends TelegramLongPollingBot implements BotCommands {
                 executeEditMessageText(text, chatId, messageId);
             }
         } else if(update.hasMessage() && update.getMessage().hasVoice()){
-            Voice voice = update.getMessage().getVoice();
-            GetFile getFileRequest = new GetFile(voice.getFileId());
-            File file;
-            try {
-                file = execute(getFileRequest);
-            } catch (TelegramApiException e) {
-                log.error("Error occurred while getting voice file: " + e.getMessage());
-                return;
-            }
-
-            String fileUrl = "https://api.telegram.org/file/bot" + getBotToken() + "/" + file.getFilePath();
-            String savePath = "src/files/sound.ogg";
-
-            try {
-                URL url = new URL(fileUrl);
-                try (InputStream in = url.openStream()) {
-                    Files.copy(in, Paths.get(savePath), StandardCopyOption.REPLACE_EXISTING);
-                    System.out.println("file upload");
-                }
-            } catch (IOException e) {
-                //log.error("Error occurred while downloading and saving voice file: " + e.getMessage());
-                e.printStackTrace();
-                return;
-            }
+            saveVoice(update.getMessage().getVoice());
+            String s = new AudioDecoder(new JsonParser()).speechToText();
+            System.out.println(s);
         }
 
     }
@@ -236,4 +225,27 @@ public class TelegramBot extends TelegramLongPollingBot implements BotCommands {
         executeMessage(message);
     }
 
+    public void saveVoice(Voice voice){
+        GetFile getFileRequest = new GetFile(voice.getFileId());
+        org.telegram.telegrambots.meta.api.objects.File file;
+        try {
+            file = execute(getFileRequest);
+        } catch (TelegramApiException e) {
+            log.error("Error occurred while getting voice file: " + e.getMessage());
+            return;
+        }
+
+        String fileUrl = "https://api.telegram.org/file/bot" + getBotToken() + "/" + file.getFilePath();
+        //String savePath = SAVE_VOICE_PATH + "voice-" + voice.getFileId().substring(voice.getFileId().length()-5) + ".ogg";
+        String savePath = SAVE_VOICE_PATH + "sound.ogg";
+        try {
+            URL url = new URL(fileUrl);
+            try (InputStream in = url.openStream()) {
+                Files.copy(in, Paths.get(savePath), StandardCopyOption.REPLACE_EXISTING);
+                System.out.println("file upload");
+            }
+        } catch (IOException e) {
+            log.error("Error occurred while downloading and saving voice file: " + e.getMessage());
+        }
+    }
 }
