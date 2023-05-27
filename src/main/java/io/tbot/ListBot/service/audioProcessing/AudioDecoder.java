@@ -1,6 +1,10 @@
 package io.tbot.ListBot.service.audioProcessing;
 
+import io.tbot.ListBot.model.Audio;
 import io.tbot.ListBot.parser.JsonParser;
+import io.tbot.ListBot.repositories.AudioRepository;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
 import org.vosk.Model;
 import org.vosk.Recognizer;
 
@@ -11,15 +15,18 @@ import javax.sound.sampled.UnsupportedAudioFileException;
 import java.io.File;
 import java.io.IOException;
 
+@Component
 public class AudioDecoder extends OggToWavConverter{
-    JsonParser parser;
-    public AudioDecoder(JsonParser parser){
-        this.parser = parser;
+
+    private final AudioRepository audioRepository;
+    private final JsonParser parser = new JsonParser();
+    @Autowired
+    public AudioDecoder(AudioRepository audioRepository) {
+        this.audioRepository = audioRepository;
     }
+
     public synchronized String speechToText(){
-        String OGG_FILE_PATH = "src/main/java/io/tbot/ListBot/files/oggFile/sound.ogg";
-        String WAV_FILE_PATH = "src/main/java/io/tbot/ListBot/files/wavFile/sound.wav";
-        convent(OGG_FILE_PATH, WAV_FILE_PATH);
+        String WAV_FILE_PATH = convent();
         StringBuilder result = new StringBuilder();
         try (Model model = new Model("src/main/resources/model");
             AudioInputStream ais = AudioSystem.getAudioInputStream(new File(WAV_FILE_PATH))) {
@@ -38,6 +45,15 @@ public class AudioDecoder extends OggToWavConverter{
         } catch (UnsupportedAudioFileException | IOException e) {
             e.printStackTrace();
         }
+
+        File delFile = new File(WAV_FILE_PATH);
+        if (delFile.delete()){
+            System.out.println("файл удален");
+        }
+
+        Audio audio = audioRepository.findAudioByPath(WAV_FILE_PATH);
+        audioRepository.delete(audio);
+
         return result.toString();
     }
 

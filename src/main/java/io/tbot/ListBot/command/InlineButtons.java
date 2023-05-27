@@ -33,13 +33,4 @@ public class InlineButtons implements BotCommands{
         return markup;
     }
 
-    public InlineKeyboardMarkup registerInlineMarkup(){
-        InlineKeyboardMarkup markup = new InlineKeyboardMarkup();
-        List<InlineKeyboardButton> rowInline = List.of(YES_BUTTON, NO_BUTTON);
-        List<List<InlineKeyboardButton>> rowsInLine = List.of(rowInline);
-
-        markup.setKeyboard(rowsInLine);
-        return markup;
-    }
-
 }

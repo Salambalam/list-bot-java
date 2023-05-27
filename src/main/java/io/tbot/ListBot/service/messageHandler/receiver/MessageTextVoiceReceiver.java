@@ -1,23 +1,28 @@
 package io.tbot.ListBot.service.messageHandler.receiver;
 
-import io.tbot.ListBot.exeptions.UnsupportedMessageFormatException;
 import lombok.SneakyThrows;
+import org.springframework.stereotype.Service;
 import org.telegram.telegrambots.meta.api.objects.Update;
 
-public class MessageTextVoiceReceiver implements MessageReceiver{
-    @SneakyThrows(UnsupportedMessageFormatException.class)
-    private boolean typeMessage(Update update) {
-        if(!update.getMessage().hasText() && !update.getMessage().hasVoice()){
-            throw new UnsupportedMessageFormatException();
-        }
-        return update.getMessage().hasText();
+@Service
+public class MessageTextVoiceReceiver {
+
+
+//    public MessageReceiver typeMessage(Update update) {
+//        MessageReceiver messageReceiver = null;
+//        if (updateHasMessage(update) && update.getMessage().hasText()) {
+//            messageReceiver = new TextReceiver();
+//        } else if (updateHasMessage(update) && update.getMessage().hasVoice()) {
+//            messageReceiver = new VoiceReceiver();
+//        } else if (updateHasMessage(update) && update.hasCallbackQuery()) {
+//            messageReceiver = new CallBackReceiver();
+//        }
+//        return messageReceiver;
+//    }
+
+    private boolean updateHasMessage(Update update) {
+        return update.hasMessage();
     }
 
-    public MessageReceiver received(Update update){
-        if (updateHasMessage(update) && typeMessage(update)) {
-            return new TextReceiver();
-        }
-        return new VoiceReceiver();
-    }
 
 }

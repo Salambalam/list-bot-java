@@ -4,42 +4,46 @@ import com.vdurmont.emoji.EmojiParser;
 import io.tbot.ListBot.command.BotCommands;
 import io.tbot.ListBot.command.InlineButtons;
 import io.tbot.ListBot.repositories.UserRepository;
-import io.tbot.ListBot.service.messageHandler.receiver.MessageReceiver;
-import io.tbot.ListBot.service.messageHandler.receiver.MessageTextVoiceReceiver;
-import io.tbot.ListBot.service.messageHandler.receiver.TextReceiver;
-import io.tbot.ListBot.service.messageHandler.receiver.VoiceReceiver;
+import io.tbot.ListBot.service.messageHandler.receiver.*;
 import lombok.Data;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
+import org.springframework.stereotype.Service;
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
 import org.telegram.telegrambots.meta.api.objects.Update;
 import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
 
 @Data
 @Slf4j
+@Component
 public class MessageSender implements BotCommands {
 
     private MessageTextVoiceReceiver receiver = new MessageTextVoiceReceiver();
     private InlineButtons buttons = new InlineButtons();
-    private UserRepository userRepository;
 
-    public MessageSender(UserRepository userRepository) {
-        this.userRepository = userRepository;
+    VoiceReceiver voiceReceiver;
+
+    @Autowired
+    public MessageSender(VoiceReceiver voiceReceiver) {
+        this.voiceReceiver = voiceReceiver;
     }
 
     public SendMessage sendMessage(Update update){
-        MessageReceiver messageReceiver = receiver.received(update);
         long chatId = update.getMessage().getChatId();
-        if(messageReceiver.getClass().equals(TextReceiver.class)){
+        if(update.getMessage().hasText()){
             return sendTextMessage(update, chatId);
-        }else if(messageReceiver.getClass().equals(VoiceReceiver.class)){
+        }else if(update.getMessage().hasVoice()){
             return sendVoiceMessage(chatId);
+        }else if(update.hasCallbackQuery()){
+            return null; //QQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQq
         }
         return null;
     }
 
     private SendMessage sendVoiceMessage(long chatId) {
         SendMessage message = new SendMessage();
-        String textToSend = new VoiceReceiver().getDecodedMessage();
+        String textToSend = voiceReceiver.getDecodedMessage();
         message.setChatId(chatId);
         message.setText(textToSend);
         return message;

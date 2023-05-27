@@ -9,6 +9,7 @@ import lombok.Data;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Bean;
 import org.springframework.stereotype.Component;
 import org.telegram.telegrambots.bots.TelegramLongPollingBot;
 import org.telegram.telegrambots.meta.api.methods.GetFile;
@@ -25,11 +26,15 @@ import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
 public class TelegramBot extends TelegramLongPollingBot implements BotCommands {
     private BotConfig config;
     private UserRepository userRepository;
+    AudioSaver audioSaver;
+    MessageHandler messageHandler;
 
     @Autowired
-    public TelegramBot(BotConfig config, UserRepository userRepository) {
+    public TelegramBot(BotConfig config, UserRepository userRepository, AudioSaver audioSaver, MessageHandler messageHandler) {
         this.config = config;
         this.userRepository = userRepository;
+        this.audioSaver = audioSaver;
+        this.messageHandler = messageHandler;
         setCommands();
     }
 
@@ -39,6 +44,7 @@ public class TelegramBot extends TelegramLongPollingBot implements BotCommands {
     }
 
     @Override
+    @Bean
     public String getBotToken() {
         return config.getToken();
     }
@@ -47,10 +53,10 @@ public class TelegramBot extends TelegramLongPollingBot implements BotCommands {
     @Override
     public void onUpdateReceived(Update update) {
         if(update.hasMessage() && update.getMessage().hasVoice()){
-            saveVoice(update.getMessage().getVoice());
+            saveVoice(update.getMessage().getVoice(), update.getMessage().getChatId());
         }
-        MessageHandler handler = new MessageHandler(update, userRepository);
-        executeMessage(handler.send());
+        messageHandler.setUpdate(update);
+        executeMessage(messageHandler.send());
     }
 
 
@@ -63,7 +69,7 @@ public class TelegramBot extends TelegramLongPollingBot implements BotCommands {
     }
 
 
-    public void saveVoice(Voice voice){
+    public void saveVoice(Voice voice, long chatId){
         GetFile getFileRequest = new GetFile(voice.getFileId());
         org.telegram.telegrambots.meta.api.objects.File file;
         try {
@@ -72,8 +78,7 @@ public class TelegramBot extends TelegramLongPollingBot implements BotCommands {
             log.error("Error occurred while getting voice file: " + e.getMessage());
             return;
         }
-        AudioSaver saver = new AudioSaver(getBotToken());
-        saver.save(file);
+        audioSaver.save(file, chatId);
     }
 
     private void setCommands(){
