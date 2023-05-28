@@ -16,7 +16,15 @@ public class User {
 
     private String userName;
 
-    private Timestamp registeredAt;
+    private String commandForRecognized;
+
+    public String getCommandForRecognized() {
+        return commandForRecognized;
+    }
+
+    public void setCommandForRecognized(String commandForRecognized) {
+        this.commandForRecognized = commandForRecognized;
+    }
 
     public Long getChatId() {
         return chatId;
@@ -50,13 +58,6 @@ public class User {
         this.userName = userName;
     }
 
-    public Timestamp getRegisteredAt() {
-        return registeredAt;
-    }
-
-    public void setRegisteredAt(Timestamp registeredAt) {
-        this.registeredAt = registeredAt;
-    }
 
     @Override
     public String toString() {
@@ -65,7 +66,6 @@ public class User {
                 ", firstName='" + firstName + '\'' +
                 ", lastName='" + lastName + '\'' +
                 ", userName='" + userName + '\'' +
-                ", registeredAt=" + registeredAt +
                 '}';
     }
 }

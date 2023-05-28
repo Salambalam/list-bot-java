@@ -9,16 +9,16 @@ import java.util.List;
 @Component
 public class InlineButtons implements BotCommands{
     private static final InlineKeyboardButton START_BUTTON = new InlineKeyboardButton("Start");
-    private static final InlineKeyboardButton SETTINGS_BUTTON = new InlineKeyboardButton("Settings");
-    private static final InlineKeyboardButton HELP_BUTTON = new InlineKeyboardButton("Help");
-    private static final InlineKeyboardButton YES_BUTTON = new InlineKeyboardButton("Yes");
-    private static final InlineKeyboardButton NO_BUTTON = new InlineKeyboardButton("No");
+    private static final InlineKeyboardButton SETTINGS_BUTTON = new InlineKeyboardButton("Настройки");
+    private static final InlineKeyboardButton HELP_BUTTON = new InlineKeyboardButton("Помощь");
+    private static final InlineKeyboardButton CREATE_LIST = new InlineKeyboardButton("Составить список");
+    private static final InlineKeyboardButton CORRECTION_OF_ERRORS_IN_THE_TEXT = new InlineKeyboardButton("Преобразовать в текст");
     static {
         START_BUTTON.setCallbackData(BotCommands.START_COMMAND);
         HELP_BUTTON.setCallbackData(BotCommands.HELP_COMMAND);
         SETTINGS_BUTTON.setCallbackData(BotCommands.SETTING_COMMAND);
-        YES_BUTTON.setCallbackData("YES_BUTTON");
-        NO_BUTTON.setCallbackData("NO_BUTTON");
+        CREATE_LIST.setCallbackData("LIST");
+        CORRECTION_OF_ERRORS_IN_THE_TEXT.setCallbackData("CORRECT");
     }
 
     public InlineButtons() {
@@ -26,11 +26,34 @@ public class InlineButtons implements BotCommands{
 
     public InlineKeyboardMarkup startInlineMarkup(){
         InlineKeyboardMarkup markup = new InlineKeyboardMarkup();
-        List<InlineKeyboardButton> rowInline = List.of(SETTINGS_BUTTON, HELP_BUTTON);
-        List<List<InlineKeyboardButton>> rowsInLine = List.of(rowInline);
-
+        List<InlineKeyboardButton> rowInline1 = List.of(CREATE_LIST, CORRECTION_OF_ERRORS_IN_THE_TEXT);
+        List<InlineKeyboardButton> rowInline2 = List.of(HELP_BUTTON, SETTINGS_BUTTON);
+        List<List<InlineKeyboardButton>> rowsInLine = List.of(rowInline1, rowInline2);
         markup.setKeyboard(rowsInLine);
         return markup;
     }
 
+    public InlineKeyboardMarkup listInlineMarkup(){
+        InlineKeyboardMarkup markup = new InlineKeyboardMarkup();
+        List<InlineKeyboardButton> rowInline1 = List.of(CORRECTION_OF_ERRORS_IN_THE_TEXT, SETTINGS_BUTTON);
+        List<List<InlineKeyboardButton>> rowsInLine = List.of(rowInline1);
+        markup.setKeyboard(rowsInLine);
+        return markup;
+    }
+
+    public InlineKeyboardMarkup correctInlineMarkup(){
+        InlineKeyboardMarkup markup = new InlineKeyboardMarkup();
+        List<InlineKeyboardButton> rowInline1 = List.of(CREATE_LIST, SETTINGS_BUTTON);
+        List<List<InlineKeyboardButton>> rowsInLine = List.of(rowInline1);
+        markup.setKeyboard(rowsInLine);
+        return markup;
+    }
+
+    public InlineKeyboardMarkup settingsInlineMarkup(){
+        InlineKeyboardMarkup markup = new InlineKeyboardMarkup();
+        List<InlineKeyboardButton> rowInline1 = List.of(CREATE_LIST, CORRECTION_OF_ERRORS_IN_THE_TEXT);
+        List<List<InlineKeyboardButton>> rowsInLine = List.of(rowInline1);
+        markup.setKeyboard(rowsInLine);
+        return markup;
+    }
 }

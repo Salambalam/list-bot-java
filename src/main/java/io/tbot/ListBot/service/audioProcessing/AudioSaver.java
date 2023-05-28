@@ -45,7 +45,6 @@ public class AudioSaver {
             URL url = new URL(fileUrl);
             try (InputStream in = url.openStream()) {
                 Files.copy(in, Paths.get(savePath), StandardCopyOption.REPLACE_EXISTING);
-                System.out.println("file upload");
             }
         } catch (IOException e) {
             log.error("Error occurred while downloading and saving voice file: " + e.getMessage());

@@ -2,7 +2,7 @@ package io.tbot.ListBot.bot;
 
 import io.tbot.ListBot.command.BotCommands;
 import io.tbot.ListBot.config.BotConfig;
-import io.tbot.ListBot.repositories.UserRepository;
+import io.tbot.ListBot.service.UserService;
 import io.tbot.ListBot.service.audioProcessing.AudioSaver;
 import io.tbot.ListBot.service.messageHandler.MessageHandler;
 import lombok.Data;
@@ -25,14 +25,14 @@ import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
 @Data
 public class TelegramBot extends TelegramLongPollingBot implements BotCommands {
     private BotConfig config;
-    private UserRepository userRepository;
     AudioSaver audioSaver;
     MessageHandler messageHandler;
+    UserService userService;
 
     @Autowired
-    public TelegramBot(BotConfig config, UserRepository userRepository, AudioSaver audioSaver, MessageHandler messageHandler) {
+    public TelegramBot(BotConfig config, UserService userService, AudioSaver audioSaver, MessageHandler messageHandler) {
         this.config = config;
-        this.userRepository = userRepository;
+        this.userService = userService;
         this.audioSaver = audioSaver;
         this.messageHandler = messageHandler;
         setCommands();
@@ -58,6 +58,7 @@ public class TelegramBot extends TelegramLongPollingBot implements BotCommands {
         messageHandler.setUpdate(update);
         executeMessage(messageHandler.send());
     }
+
 
 
     private void executeMessage(SendMessage message){
@@ -88,5 +89,6 @@ public class TelegramBot extends TelegramLongPollingBot implements BotCommands {
             log.error("Error setting bot command list: " + e.getMessage());
         }
     }
+
 }
 

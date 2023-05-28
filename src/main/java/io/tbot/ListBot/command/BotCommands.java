@@ -9,11 +9,13 @@ public interface BotCommands {
     String SETTING_COMMAND = "/settings";
     String HELP_COMMAND = "/help";
     List<BotCommand> LIST_OF_COMMANDS = List.of(
-            new BotCommand(START_COMMAND, "start bot"),
-            new BotCommand(SETTING_COMMAND, "set your references"),
-            new BotCommand(HELP_COMMAND, "bot info"));
-    String HELP_TEXT = "This bot is created to demonstrate Spring capabilities.\n\n" +
-            "You can execute commands from the main menu on the left or by typing a command:" +
-            "Type /start - see a welcome message\n"+
-            "Type /help = see this message again";
+            new BotCommand(START_COMMAND, "Запустить бота"),
+            new BotCommand(SETTING_COMMAND, "Изменить настройки"),
+            new BotCommand(HELP_COMMAND, "Информация о боте"));
+    String HELP_TEXT = "Я создан, чтобы разгрузить ваши ручки и уменьшить затраты времени, на создание списков и текста\n\n" +
+            "<b>Список команд бота:</b>\n" +
+            "\n" +
+            "/start - перезапустить бота\n" +
+            "/help - список всех доступных команд\n" +
+            "/settings - выбор параметра распознавания";
 }

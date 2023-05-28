@@ -22,7 +22,7 @@ public class OggToWavConverter {
     @Autowired
     AudioRepository audioRepository;
 
-    public String convent() {
+    public synchronized String convent() {
         Iterable<Audio> audioIterable = audioRepository.findAll();
         List<Audio> audioList = new ArrayList<>();
         audioIterable.forEach(audioList::add);
@@ -47,8 +47,6 @@ public class OggToWavConverter {
             File outputFile = new File(newPath);
             Encoder encoder = new Encoder();
             encoder.encode(new MultimediaObject(inputFile), outputFile, encodingAttributes);
-
-            System.out.println("Конвертация завершена.");
         } catch (EncoderException e) {
             log.error("Error in converter: " + e.getMessage());
         }
@@ -58,7 +56,7 @@ public class OggToWavConverter {
 
         File oldFile = new File(oldPath);
         if(oldFile.delete()){
-            System.out.println("файл удален успешно");
+            log.info("INFO delete OGG file" + oldPath);
         }
         return newPath;
     }

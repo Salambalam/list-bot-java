@@ -3,6 +3,7 @@ package io.tbot.ListBot.service.audioProcessing;
 import io.tbot.ListBot.model.Audio;
 import io.tbot.ListBot.parser.JsonParser;
 import io.tbot.ListBot.repositories.AudioRepository;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.vosk.Model;
@@ -16,6 +17,7 @@ import java.io.File;
 import java.io.IOException;
 
 @Component
+@Slf4j
 public class AudioDecoder extends OggToWavConverter{
 
     private final AudioRepository audioRepository;
@@ -43,12 +45,12 @@ public class AudioDecoder extends OggToWavConverter{
             }
             result.append(parser.parseToString(recognizer.getFinalResult()));
         } catch (UnsupportedAudioFileException | IOException e) {
-            e.printStackTrace();
+            log.error("UnsupportedAudioFileException" + e);
         }
 
         File delFile = new File(WAV_FILE_PATH);
         if (delFile.delete()){
-            System.out.println("файл удален");
+            log.info("INFO: WAV file remove - " + WAV_FILE_PATH);
         }
 
         Audio audio = audioRepository.findAudioByPath(WAV_FILE_PATH);

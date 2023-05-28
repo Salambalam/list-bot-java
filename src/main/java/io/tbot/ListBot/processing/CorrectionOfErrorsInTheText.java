@@ -3,40 +3,27 @@ package io.tbot.ListBot.processing;
 import com.theokanning.openai.edit.EditChoice;
 import com.theokanning.openai.edit.EditRequest;
 import com.theokanning.openai.service.OpenAiService;
-import lombok.Getter;
-import lombok.Setter;
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.context.annotation.PropertySource;
 
 import java.time.Duration;
 import java.util.List;
 
-@PropertySource("classpath:application.properties")
 public class CorrectionOfErrorsInTheText implements TextProcessing{
 
-    @Getter
-    @Setter
-    private String TEXT_TO_CORRECT;
-    private final OpenAiService service;
-
-    @Value("${ai.key}")
-    private String TOKEN;
-    private static final String INSTRUCTION = "Correct puncture errors and place points where necessary";
-    private static final String MODEL = "ext-davinci-edit-001";
+    private static final String TOKEN = "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";
+    private static final String INSTRUCTION = "Correct punctuation errors. Divide the text into sentences.";
+    private static final String MODEL = "text-davinci-edit-001";
 
 
-    public CorrectionOfErrorsInTheText(String textToCorrect) {
-        TEXT_TO_CORRECT = textToCorrect;
-        service = new OpenAiService(TOKEN, Duration.ofSeconds(60));
+    public CorrectionOfErrorsInTheText() {
+
     }
 
     @Override
-    public String processText(){
-        //OpenAiService service = new OpenAiService(TOKEN, Duration.ofSeconds(60));
-        //System.out.println("\nCreating completion...");
+    public synchronized String processText(String text){
+        OpenAiService service = new OpenAiService(TOKEN, Duration.ofSeconds(60));
         EditRequest editRequest = EditRequest.builder()
                 .model(MODEL)
-                .input(TEXT_TO_CORRECT)
+                .input(text)
                 .instruction(INSTRUCTION)
                 .n(1)
                 .temperature(0.2)
@@ -44,6 +31,5 @@ public class CorrectionOfErrorsInTheText implements TextProcessing{
         List<EditChoice> editResult = service.createEdit(editRequest).getChoices();
         service.shutdownExecutor();
         return editResult.get(0).getText();
-//        System.out.println(editResult.get(0).getText());
     }
 }
