@@ -2,7 +2,6 @@ package io.tbot.ListBot.service.audioProcessing;
 
 import io.tbot.ListBot.model.Audio;
 import io.tbot.ListBot.repositories.AudioRepository;
-import lombok.Data;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -20,17 +19,16 @@ import java.nio.file.StandardCopyOption;
 @Slf4j
 @Service
 @PropertySource("classpath:application.properties")
-public class AudioSaver {
+public class VoiceSaver {
     private final String SAVE_VOICE_PATH = "src/main/java/io/tbot/ListBot/files/oggFile/";
 
     @Value("${bot.token}")
     private String botToken;
 
-
     private final AudioRepository audioRepository;
 
     @Autowired
-    public AudioSaver(AudioRepository audioRepository) {
+    public VoiceSaver(AudioRepository audioRepository) {
         this.audioRepository = audioRepository;
     }
 

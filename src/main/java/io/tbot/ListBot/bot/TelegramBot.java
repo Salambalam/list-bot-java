@@ -1,94 +1,78 @@
 package io.tbot.ListBot.bot;
 
 import io.tbot.ListBot.command.BotCommands;
-import io.tbot.ListBot.config.BotConfig;
-import io.tbot.ListBot.service.UserService;
-import io.tbot.ListBot.service.audioProcessing.AudioSaver;
+import io.tbot.ListBot.service.audioProcessing.VoiceSaver;
 import io.tbot.ListBot.service.messageHandler.MessageHandler;
-import lombok.Data;
-import lombok.SneakyThrows;
+import lombok.Getter;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.annotation.Bean;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 import org.telegram.telegrambots.bots.TelegramLongPollingBot;
 import org.telegram.telegrambots.meta.api.methods.GetFile;
 import org.telegram.telegrambots.meta.api.methods.commands.SetMyCommands;
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
+import org.telegram.telegrambots.meta.api.objects.File;
 import org.telegram.telegrambots.meta.api.objects.Update;
 import org.telegram.telegrambots.meta.api.objects.Voice;
 import org.telegram.telegrambots.meta.api.objects.commands.scope.BotCommandScopeDefault;
 import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
 
+import javax.annotation.PostConstruct;
+
 @Slf4j
 @Component
-@Data
+@RequiredArgsConstructor // @ - генерирует конструктор, автоматически инициализирующий все final поля.
 public class TelegramBot extends TelegramLongPollingBot implements BotCommands {
-    private BotConfig config;
-    AudioSaver audioSaver;
-    MessageHandler messageHandler;
-    UserService userService;
 
-    @Autowired
-    public TelegramBot(BotConfig config, UserService userService, AudioSaver audioSaver, MessageHandler messageHandler) {
-        this.config = config;
-        this.userService = userService;
-        this.audioSaver = audioSaver;
-        this.messageHandler = messageHandler;
-        setCommands();
-    }
+    private final VoiceSaver voiceSaver;
+    private final MessageHandler messageHandler;
+
+    @Getter
+    @Value("${bot.token}")
+    private String botToken;
+
+    @Value("${bot.name}")
+    private String botName;
 
     @Override
     public String getBotUsername() {
-        return config.getBotName();
+        return botName;
     }
 
-    @Override
-    @Bean
-    public String getBotToken() {
-        return config.getToken();
-    }
-
-    @SneakyThrows
     @Override
     public void onUpdateReceived(Update update) {
-        if(update.hasMessage() && update.getMessage().hasVoice()){
+        if (update.hasMessage() && update.getMessage().hasVoice()) {
             saveVoice(update.getMessage().getVoice(), update.getMessage().getChatId());
         }
         messageHandler.setUpdate(update);
         executeMessage(messageHandler.send());
     }
 
-
-
-    private void executeMessage(SendMessage message){
-        try{
+    private void executeMessage(SendMessage message) {
+        try {
             execute(message);
         } catch (TelegramApiException e) {
-            log.error("Error occurred: " + e.getMessage());
+            log.error("Error occurred: {}", e.getMessage());
         }
     }
 
-
-    public void saveVoice(Voice voice, long chatId){
-        GetFile getFileRequest = new GetFile(voice.getFileId());
-        org.telegram.telegrambots.meta.api.objects.File file;
+    public void saveVoice(Voice voice, long chatId) {
         try {
-            file = execute(getFileRequest);
+            GetFile getFileRequest = new GetFile(voice.getFileId());
+            File file = execute(getFileRequest);
+            voiceSaver.save(file, chatId);
         } catch (TelegramApiException e) {
-            log.error("Error occurred while getting voice file: " + e.getMessage());
-            return;
-        }
-        audioSaver.save(file, chatId);
-    }
-
-    private void setCommands(){
-        try{
-            this.execute(new SetMyCommands(LIST_OF_COMMANDS, new BotCommandScopeDefault(), null));
-        } catch (TelegramApiException e) {
-            log.error("Error setting bot command list: " + e.getMessage());
+            log.error("Error occurred while getting voice file: {}", e.getMessage());
         }
     }
 
+    @PostConstruct // @ - вызывает метод после после завершения конструктора и автоматической инициализации полей с помощью Lombok
+    private void setCommands() {
+        try {
+            execute(new SetMyCommands(LIST_OF_COMMANDS, new BotCommandScopeDefault(), null));
+        } catch (TelegramApiException e) {
+            log.error("Error setting bot command list: {}", e.getMessage());
+        }
+    }
 }
-

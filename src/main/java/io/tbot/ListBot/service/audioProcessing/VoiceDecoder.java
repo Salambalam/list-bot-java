@@ -1,8 +1,7 @@
 package io.tbot.ListBot.service.audioProcessing;
 
-import io.tbot.ListBot.model.Audio;
 import io.tbot.ListBot.parser.JsonParser;
-import io.tbot.ListBot.repositories.AudioRepository;
+import io.tbot.ListBot.service.AudioService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
@@ -18,13 +17,13 @@ import java.io.IOException;
 
 @Component
 @Slf4j
-public class AudioDecoder extends OggToWavConverter{
+public class VoiceDecoder extends OggToWavConverter{
 
-    private final AudioRepository audioRepository;
+    private final AudioService audioService;
     private final JsonParser parser = new JsonParser();
     @Autowired
-    public AudioDecoder(AudioRepository audioRepository) {
-        this.audioRepository = audioRepository;
+    public VoiceDecoder(AudioService audioService) {
+        this.audioService = audioService;
     }
 
     public synchronized String speechToText(){
@@ -53,8 +52,7 @@ public class AudioDecoder extends OggToWavConverter{
             log.info("INFO: WAV file remove - " + WAV_FILE_PATH);
         }
 
-        Audio audio = audioRepository.findAudioByPath(WAV_FILE_PATH);
-        audioRepository.delete(audio);
+        audioService.deleteByPath(WAV_FILE_PATH);
 
         return result.toString();
     }

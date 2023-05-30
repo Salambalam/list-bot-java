@@ -12,7 +12,7 @@ public interface BotCommands {
             new BotCommand(START_COMMAND, "Запустить бота"),
             new BotCommand(SETTING_COMMAND, "Изменить настройки"),
             new BotCommand(HELP_COMMAND, "Информация о боте"));
-    String HELP_TEXT = "Я создан, чтобы разгрузить ваши ручки и уменьшить затраты времени, на создание списков и текста\n\n" +
+    String HELP_TEXT =
             "<b>Список команд бота:</b>\n" +
             "\n" +
             "/start - перезапустить бота\n" +

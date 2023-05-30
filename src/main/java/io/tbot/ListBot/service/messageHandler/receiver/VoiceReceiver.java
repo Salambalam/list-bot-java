@@ -1,23 +1,21 @@
 package io.tbot.ListBot.service.messageHandler.receiver;
 
-import io.tbot.ListBot.repositories.AudioRepository;
-import io.tbot.ListBot.service.audioProcessing.AudioDecoder;
+import io.tbot.ListBot.service.audioProcessing.VoiceDecoder;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
-import org.springframework.stereotype.Service;
 
 @Component
 public class VoiceReceiver implements MessageReceiver{
 
-    AudioDecoder audioDecoder;
+    VoiceDecoder voiceDecoder;
 
     @Autowired
-    public VoiceReceiver(AudioDecoder audioDecoder) {
-        this.audioDecoder = audioDecoder;
+    public VoiceReceiver(VoiceDecoder voiceDecoder) {
+        this.voiceDecoder = voiceDecoder;
     }
 
     public String getDecodedMessage(){
-        return audioDecoder.speechToText();
+        return voiceDecoder.speechToText();
     }
 
 }
