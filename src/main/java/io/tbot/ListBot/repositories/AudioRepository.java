@@ -7,4 +7,6 @@ import org.springframework.stereotype.Repository;
 @Repository
 public interface AudioRepository extends CrudRepository<Audio, String> {
     Audio findAudioByPath(String path);
+    Audio findAudioByChatId(long chatId);
+    boolean existsByChatId(long chatId);
 }

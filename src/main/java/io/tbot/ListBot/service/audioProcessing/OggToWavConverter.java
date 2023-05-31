@@ -1,7 +1,7 @@
 package io.tbot.ListBot.service.audioProcessing;
 
 import io.tbot.ListBot.model.Audio;
-import io.tbot.ListBot.repositories.AudioRepository;
+import io.tbot.ListBot.service.AudioService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
@@ -12,20 +12,21 @@ import ws.schild.jave.encode.AudioAttributes;
 import ws.schild.jave.encode.EncodingAttributes;
 
 import java.io.File;
-import java.util.ArrayList;
 import java.util.List;
 
 @Slf4j
 @Component
 public class OggToWavConverter {
-    String FILE_PATH = "src/main/java/io/tbot/ListBot/files/oggFile/";
+    String FILE_PATH = "src/main/java/io/tbot/ListBot/audioFiles/";
+    AudioService audioService;
+
     @Autowired
-    AudioRepository audioRepository;
+    public OggToWavConverter(AudioService audioService) {
+        this.audioService = audioService;
+    }
 
     public synchronized String convent() {
-        Iterable<Audio> audioIterable = audioRepository.findAll();
-        List<Audio> audioList = new ArrayList<>();
-        audioIterable.forEach(audioList::add);
+        List<Audio> audioList = audioService.findAllOgg();
 
         Audio audio = audioList.get(0);
         String newPath = FILE_PATH + audio.getChatId() + ".wav";
@@ -52,8 +53,7 @@ public class OggToWavConverter {
         }
 
         audio.setPath(newPath);
-        audioRepository.save(audio);
-
+        audioService.save(audio);
         File oldFile = new File(oldPath);
         if(oldFile.delete()){
             log.info("INFO delete OGG file" + oldPath);

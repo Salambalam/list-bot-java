@@ -1,7 +1,6 @@
 package io.tbot.ListBot.service.audioProcessing;
 
-import io.tbot.ListBot.model.Audio;
-import io.tbot.ListBot.repositories.AudioRepository;
+import io.tbot.ListBot.service.AudioService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -20,29 +19,28 @@ import java.nio.file.StandardCopyOption;
 @Service
 @PropertySource("classpath:application.properties")
 public class VoiceSaver {
-    private final String SAVE_VOICE_PATH = "src/main/java/io/tbot/ListBot/files/oggFile/";
 
     @Value("${bot.token}")
     private String botToken;
 
-    private final AudioRepository audioRepository;
+    private final AudioService audioService;
 
     @Autowired
-    public VoiceSaver(AudioRepository audioRepository) {
-        this.audioRepository = audioRepository;
+    public VoiceSaver(AudioService audioService) {
+        this.audioService = audioService;
     }
-
 
     public synchronized void save(File file, long chatId){
 
         String fileUrl = "https://api.telegram.org/file/bot" + botToken + "/" + file.getFilePath();
-        String savePath = SAVE_VOICE_PATH + chatId +".ogg";
+        String SAVE_VOICE_PATH = "src/main/java/io/tbot/ListBot/audioFiles/";
+        String savePath = SAVE_VOICE_PATH + chatId + ".ogg";
 
-        audioRepository.save(new Audio(savePath, chatId));
+        audioService.save(savePath, chatId);
         try {
             URL url = new URL(fileUrl);
-            try (InputStream in = url.openStream()) {
-                Files.copy(in, Paths.get(savePath), StandardCopyOption.REPLACE_EXISTING);
+            try (InputStream inputStream = url.openStream()) {
+                Files.copy(inputStream, Paths.get(savePath), StandardCopyOption.REPLACE_EXISTING);
             }
         } catch (IOException e) {
             log.error("Error occurred while downloading and saving voice file: " + e.getMessage());

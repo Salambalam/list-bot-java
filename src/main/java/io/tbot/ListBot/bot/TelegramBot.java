@@ -45,8 +45,7 @@ public class TelegramBot extends TelegramLongPollingBot implements BotCommands {
         if (update.hasMessage() && update.getMessage().hasVoice()) {
             saveVoice(update.getMessage().getVoice(), update.getMessage().getChatId());
         }
-        messageHandler.setUpdate(update);
-        executeMessage(messageHandler.send());
+        executeMessage(messageHandler.send(update));
     }
 
     private void executeMessage(SendMessage message) {

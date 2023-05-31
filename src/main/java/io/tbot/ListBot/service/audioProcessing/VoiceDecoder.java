@@ -17,17 +17,19 @@ import java.io.IOException;
 
 @Component
 @Slf4j
-public class VoiceDecoder extends OggToWavConverter{
+public class VoiceDecoder{
 
     private final AudioService audioService;
+    private final OggToWavConverter oggToWavConverter;
     private final JsonParser parser = new JsonParser();
     @Autowired
-    public VoiceDecoder(AudioService audioService) {
+    public VoiceDecoder(AudioService audioService, OggToWavConverter oggToWavConverter) {
         this.audioService = audioService;
+        this.oggToWavConverter = oggToWavConverter;
     }
 
     public synchronized String speechToText(){
-        String WAV_FILE_PATH = convent();
+        String WAV_FILE_PATH = oggToWavConverter.convent();
         StringBuilder result = new StringBuilder();
         try (Model model = new Model("src/main/resources/model");
             AudioInputStream ais = AudioSystem.getAudioInputStream(new File(WAV_FILE_PATH))) {
@@ -46,13 +48,6 @@ public class VoiceDecoder extends OggToWavConverter{
         } catch (UnsupportedAudioFileException | IOException e) {
             log.error("UnsupportedAudioFileException" + e);
         }
-
-        File delFile = new File(WAV_FILE_PATH);
-        if (delFile.delete()){
-            log.info("INFO: WAV file remove - " + WAV_FILE_PATH);
-        }
-
-        audioService.deleteByPath(WAV_FILE_PATH);
 
         return result.toString();
     }
