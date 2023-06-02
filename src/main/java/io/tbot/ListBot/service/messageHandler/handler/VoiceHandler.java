@@ -1,7 +1,7 @@
 package io.tbot.ListBot.service.messageHandler.handler;
 
-import io.tbot.ListBot.processing.CorrectionOfErrorsInTheText;
-import io.tbot.ListBot.processing.CreateList;
+import io.tbot.ListBot.processing.RecognizedVoiceToFormattedText;
+import io.tbot.ListBot.processing.RecognizedVoiceToListConverter;
 import io.tbot.ListBot.service.UserService;
 import io.tbot.ListBot.service.audioProcessing.VoiceDecoder;
 import lombok.RequiredArgsConstructor;
@@ -15,6 +15,8 @@ public class VoiceHandler implements MessageHandler {
 
     private final VoiceDecoder voiceDecoder;
     private final UserService userService;
+    private final RecognizedVoiceToListConverter listConverter;
+    private final RecognizedVoiceToFormattedText formattedText;
 
 
     @Override
@@ -27,11 +29,9 @@ public class VoiceHandler implements MessageHandler {
         String textToSend = voiceDecoder.speechToText();
         String result = "";
         if(userService.getCommandOfRecognized(chatId).equals("LIST")){
-            CreateList createList = new CreateList();
-            result = createList.processText(textToSend);
+            result = listConverter.processText(textToSend);
         }else if(userService.getCommandOfRecognized(chatId).equals("CORRECT")){
-            CorrectionOfErrorsInTheText correction = new CorrectionOfErrorsInTheText();
-            result = correction.processText(textToSend);
+            result = formattedText.processText(textToSend);
         }
         message.setChatId(chatId);
         message.setText(result);

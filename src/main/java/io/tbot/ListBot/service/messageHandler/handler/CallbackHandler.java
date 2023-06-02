@@ -20,25 +20,22 @@ public class CallbackHandler extends MessageCreator implements MessageHandler, B
 
     private SendMessage handCallbackQuery(Update update){
         long chatId = update.getCallbackQuery().getMessage().getChatId();
-        switch (update.getCallbackQuery().getData()){
-            case "LIST":
-                return listCommandReceived(chatId);
-            case "CORRECT":
-                return correctCommandReceived(chatId);
-            case SETTING_COMMAND:
-                return settingCommandReceived(chatId);
-            case HELP_COMMAND:
-                return helpCommandReceived(chatId);
-            default: return null;
-        }
+        return switch (update.getCallbackQuery().getData()) {
+            case "LIST" -> listCommandReceived(chatId);
+            case "CORRECT" -> correctCommandReceived(chatId);
+            case SETTING_COMMAND -> settingCommandReceived(chatId);
+            case HELP_COMMAND -> helpCommandReceived(chatId);
+            default -> null;
+        };
     }
 
     private SendMessage listCommandReceived(long chatId) {
         SendMessage sendMessage = new SendMessage();
         sendMessage.setChatId(chatId);
-        sendMessage.setText("<b>Вы выбрали способ обработки: Список. Отправьте голосовое сообщение.</b>\n" +
-                "\n" +
-                "Можете изменить свой выбор в настройках /settings");
+        sendMessage.setText("""
+                <b>Вы выбрали способ обработки: Список. Отправьте голосовое сообщение.</b>
+
+                Можете изменить свой выбор в настройках /settings""");
         sendMessage.setParseMode("HTML");
         userService.setCommandRecognized("LIST", chatId);
         return sendMessage;
@@ -47,9 +44,10 @@ public class CallbackHandler extends MessageCreator implements MessageHandler, B
     private SendMessage correctCommandReceived(long chatId) {
         SendMessage sendMessage = new SendMessage();
         sendMessage.setChatId(chatId);
-        sendMessage.setText("<b>Вы выбрали способ обработки: Преобразовать в текст. Отправьте голосовое сообщение.</b>\n" +
-                "\n" +
-                "Вы можете изменить свой выбор в настройках /settings");
+        sendMessage.setText("""
+                <b>Вы выбрали способ обработки: Преобразовать в текст. Отправьте голосовое сообщение.</b>
+
+                Вы можете изменить свой выбор в настройках /settings""");
         sendMessage.setParseMode("HTML");
         userService.setCommandRecognized("CORRECT", chatId);
         return sendMessage;

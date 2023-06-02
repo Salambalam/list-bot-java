@@ -23,15 +23,19 @@ public class TextHandler extends MessageCreator implements MessageHandler, BotCo
     private SendMessage sendTextMessage(Update update) {
         long chatId = update.getMessage().getChatId();
         switch (update.getMessage().getText()) {
-            case START_COMMAND:
+            case START_COMMAND -> {
                 userService.saveUser(update.getMessage());
                 return startCommandReceived(chatId, update.getMessage().getChat().getFirstName());
-            case HELP_COMMAND:
+            }
+            case HELP_COMMAND -> {
                 return helpCommandReceived(chatId);
-            case SETTING_COMMAND:
+            }
+            case SETTING_COMMAND -> {
                 return settingCommandReceived(chatId);
-            default:
-                return prepareAndSendMessage(chatId, "Sorry, command was not recognized");
+            }
+            default -> {
+                return prepareAndSendMessage(chatId, "Извините, команда не распознана:(");
+            }
         }
     }
 

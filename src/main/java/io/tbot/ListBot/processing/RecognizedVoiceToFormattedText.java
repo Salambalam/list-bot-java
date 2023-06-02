@@ -3,20 +3,22 @@ package io.tbot.ListBot.processing;
 import com.theokanning.openai.edit.EditChoice;
 import com.theokanning.openai.edit.EditRequest;
 import com.theokanning.openai.service.OpenAiService;
+import lombok.NoArgsConstructor;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.stereotype.Component;
 
 import java.time.Duration;
 import java.util.List;
 
-public class CorrectionOfErrorsInTheText implements TextProcessing{
+@Component
+@NoArgsConstructor
+public class RecognizedVoiceToFormattedText implements TextProcessing{
 
-    private static final String TOKEN = "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";
+    @Value("${open.ai.token}")
+    private String TOKEN;
     private static final String INSTRUCTION = "Split text into sentences. Correct punctuation errors.";
     private static final String MODEL = "text-davinci-edit-001";
 
-
-    public CorrectionOfErrorsInTheText() {
-
-    }
 
     @Override
     public synchronized String processText(String text){
