@@ -3,8 +3,6 @@ package io.tbot.ListBot.service.messageHandler;
 import io.tbot.ListBot.service.messageHandler.handler.CallbackHandler;
 import io.tbot.ListBot.service.messageHandler.handler.TextHandler;
 import io.tbot.ListBot.service.messageHandler.handler.VoiceHandler;
-import jdk.jfr.Registered;
-import lombok.Data;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;

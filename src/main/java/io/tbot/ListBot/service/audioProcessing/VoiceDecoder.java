@@ -1,10 +1,8 @@
 package io.tbot.ListBot.service.audioProcessing;
 
 import io.tbot.ListBot.parser.JsonParser;
-import io.tbot.ListBot.service.AudioService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.vosk.Model;
 import org.vosk.Recognizer;

@@ -3,17 +3,17 @@ package io.tbot.ListBot.service.messageHandler;
 
 import com.vdurmont.emoji.EmojiParser;
 import io.tbot.ListBot.command.InlineButtons;
-import lombok.RequiredArgsConstructor;
+import lombok.NoArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
 
 @Component
-@RequiredArgsConstructor
+@NoArgsConstructor
 @Slf4j
 public class MessageCreator {
 
-    private final InlineButtons buttons;
+    private final InlineButtons buttons = new InlineButtons();
 
     public SendMessage startCommandReceived(long chatId, String name){
         SendMessage message = new SendMessage();

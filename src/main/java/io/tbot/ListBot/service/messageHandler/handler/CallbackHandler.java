@@ -10,10 +10,9 @@ import org.telegram.telegrambots.meta.api.objects.Update;
 
 @Component
 @RequiredArgsConstructor
-public class CallbackHandler implements MessageHandler, BotCommands {
+public class CallbackHandler extends MessageCreator implements MessageHandler, BotCommands {
 
     private final UserService userService;
-    private final MessageCreator messageCreator;
     @Override
     public SendMessage send(Update update) {
         return handCallbackQuery(update);
@@ -27,9 +26,9 @@ public class CallbackHandler implements MessageHandler, BotCommands {
             case "CORRECT":
                 return correctCommandReceived(chatId);
             case SETTING_COMMAND:
-                return messageCreator.settingCommandReceived(chatId);
+                return settingCommandReceived(chatId);
             case HELP_COMMAND:
-                return messageCreator.helpCommandReceived(chatId);
+                return helpCommandReceived(chatId);
             default: return null;
         }
     }
