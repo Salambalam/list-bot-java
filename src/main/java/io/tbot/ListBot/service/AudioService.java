@@ -4,7 +4,6 @@ import io.tbot.ListBot.model.Audio;
 import io.tbot.ListBot.repositories.AudioRepository;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;

@@ -2,8 +2,8 @@ package io.tbot.ListBot.service.audioProcessing;
 
 import io.tbot.ListBot.model.Audio;
 import io.tbot.ListBot.service.AudioService;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import ws.schild.jave.Encoder;
 import ws.schild.jave.EncoderException;
@@ -16,14 +16,10 @@ import java.util.List;
 
 @Slf4j
 @Component
+@RequiredArgsConstructor
 public class OggToWavConverter {
     String FILE_PATH = "src/main/java/io/tbot/ListBot/audioFiles/";
-    AudioService audioService;
-
-    @Autowired
-    public OggToWavConverter(AudioService audioService) {
-        this.audioService = audioService;
-    }
+    private final AudioService audioService;
 
     public synchronized String convent() {
         List<Audio> audioList = audioService.findAllOgg();

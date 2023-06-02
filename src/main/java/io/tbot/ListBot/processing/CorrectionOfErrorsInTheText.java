@@ -9,8 +9,8 @@ import java.util.List;
 
 public class CorrectionOfErrorsInTheText implements TextProcessing{
 
-    private static final String TOKEN = "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";
-    private static final String INSTRUCTION = "Correct punctuation errors. Divide the text into sentences.";
+    private static final String TOKEN = "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";
+    private static final String INSTRUCTION = "Split text into sentences. Correct punctuation errors.";
     private static final String MODEL = "text-davinci-edit-001";
 
 

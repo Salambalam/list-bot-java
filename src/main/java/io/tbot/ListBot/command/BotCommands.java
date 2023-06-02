@@ -12,10 +12,4 @@ public interface BotCommands {
             new BotCommand(START_COMMAND, "Запустить бота"),
             new BotCommand(SETTING_COMMAND, "Изменить настройки"),
             new BotCommand(HELP_COMMAND, "Информация о боте"));
-    String HELP_TEXT =
-            "<b>Список команд бота:</b>\n" +
-            "\n" +
-            "/start - перезапустить бота\n" +
-            "/help - список всех доступных команд\n" +
-            "/settings - выбор параметра распознавания";
 }

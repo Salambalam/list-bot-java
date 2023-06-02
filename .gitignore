@@ -49,7 +49,7 @@ hs_err_pid*
 HELP.md
 
 # Specific project files
-/src/main/java/io/tbot/ListBot/audioFiles
+/src/main/java/io/tbot/ListBot/audioFiles/**
 **application.properties
 **database.properties
 mvnw.cmd

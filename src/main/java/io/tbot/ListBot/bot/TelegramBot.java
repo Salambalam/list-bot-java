@@ -2,7 +2,7 @@ package io.tbot.ListBot.bot;
 
 import io.tbot.ListBot.command.BotCommands;
 import io.tbot.ListBot.service.audioProcessing.VoiceSaver;
-import io.tbot.ListBot.service.messageHandler.MessageHandler;
+import io.tbot.ListBot.service.messageHandler.MessageSender;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -26,7 +26,7 @@ import javax.annotation.PostConstruct;
 public class TelegramBot extends TelegramLongPollingBot implements BotCommands {
 
     private final VoiceSaver voiceSaver;
-    private final MessageHandler messageHandler;
+    private final MessageSender messageSender;
 
     @Getter
     @Value("${bot.token}")
@@ -45,7 +45,7 @@ public class TelegramBot extends TelegramLongPollingBot implements BotCommands {
         if (update.hasMessage() && update.getMessage().hasVoice()) {
             saveVoice(update.getMessage().getVoice(), update.getMessage().getChatId());
         }
-        executeMessage(messageHandler.send(update));
+        executeMessage(messageSender.getSendMessage(update));
     }
 
     private void executeMessage(SendMessage message) {

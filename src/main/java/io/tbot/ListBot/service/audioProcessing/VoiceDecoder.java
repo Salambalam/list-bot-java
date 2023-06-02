@@ -2,6 +2,7 @@ package io.tbot.ListBot.service.audioProcessing;
 
 import io.tbot.ListBot.parser.JsonParser;
 import io.tbot.ListBot.service.AudioService;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
@@ -17,16 +18,11 @@ import java.io.IOException;
 
 @Component
 @Slf4j
+@RequiredArgsConstructor
 public class VoiceDecoder{
 
-    private final AudioService audioService;
     private final OggToWavConverter oggToWavConverter;
     private final JsonParser parser = new JsonParser();
-    @Autowired
-    public VoiceDecoder(AudioService audioService, OggToWavConverter oggToWavConverter) {
-        this.audioService = audioService;
-        this.oggToWavConverter = oggToWavConverter;
-    }
 
     public synchronized String speechToText(){
         String WAV_FILE_PATH = oggToWavConverter.convent();

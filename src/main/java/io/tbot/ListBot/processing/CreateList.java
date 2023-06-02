@@ -11,7 +11,7 @@ import java.util.List;
 public class CreateList implements TextProcessing{
 
 
-    private static final String TOKEN = "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";
+    private static final String TOKEN = "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";
     private static final String MODEL = "gpt-3.5-turbo";
     private static final String ROLE = "system";
     private static final String INSTRUCTION = "Прочитайте текст, который нужно обработать. Текст будет предоставлен в кавычках.\n" +

@@ -1,8 +1,8 @@
 package io.tbot.ListBot.service.audioProcessing;
 
 import io.tbot.ListBot.service.AudioService;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.PropertySource;
 import org.springframework.stereotype.Service;
@@ -18,17 +18,13 @@ import java.nio.file.StandardCopyOption;
 @Slf4j
 @Service
 @PropertySource("classpath:application.properties")
+@RequiredArgsConstructor
 public class VoiceSaver {
 
     @Value("${bot.token}")
     private String botToken;
 
     private final AudioService audioService;
-
-    @Autowired
-    public VoiceSaver(AudioService audioService) {
-        this.audioService = audioService;
-    }
 
     public synchronized void save(File file, long chatId){
 
