@@ -1,7 +1,6 @@
 package io.tbot.ListBot.service.messageHandler.handler;
 
-import io.tbot.ListBot.processing.RecognizedVoiceToFormattedText;
-import io.tbot.ListBot.processing.RecognizedVoiceToListConverter;
+import io.tbot.ListBot.processing.TextProcessing;
 import io.tbot.ListBot.service.UserService;
 import io.tbot.ListBot.service.audioProcessing.VoiceDecoder;
 import lombok.RequiredArgsConstructor;
@@ -9,14 +8,16 @@ import org.springframework.stereotype.Component;
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
 import org.telegram.telegrambots.meta.api.objects.Update;
 
+import java.util.List;
+import java.util.Optional;
+
 @RequiredArgsConstructor
 @Component
 public class VoiceHandler implements MessageHandler {
 
     private final VoiceDecoder voiceDecoder;
     private final UserService userService;
-    private final RecognizedVoiceToListConverter listConverter;
-    private final RecognizedVoiceToFormattedText formattedText;
+    private final List<TextProcessing> handlers;
 
 
     @Override
@@ -24,15 +25,25 @@ public class VoiceHandler implements MessageHandler {
         return sendVoiceMessage(update.getMessage().getChatId());
     }
 
+    @Override
+    public boolean canSend(Update update) {
+        if(update.hasMessage()){
+            return update.getMessage().hasVoice();
+        }
+        return false;
+    }
+
     private SendMessage sendVoiceMessage(long chatId) {
         SendMessage message = new SendMessage();
         String textToSend = voiceDecoder.speechToText();
-        String result = "";
-        if(userService.getCommandOfRecognized(chatId).equals("LIST")){
-            result = listConverter.processText(textToSend);
-        }else if(userService.getCommandOfRecognized(chatId).equals("CORRECT")){
-            result = formattedText.processText(textToSend);
+
+        Optional<TextProcessing> handler = handlers.stream()
+                .filter(textProcessing -> textProcessing.canProcessing(userService.getCommandOfRecognized(chatId)))
+                .findFirst();
+        if(handler.isEmpty()){
+            return null;
         }
+        String result = handler.get().processText(textToSend);
         message.setChatId(chatId);
         message.setText(result);
         return message;

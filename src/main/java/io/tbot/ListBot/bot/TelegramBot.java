@@ -15,15 +15,17 @@ import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
 import org.telegram.telegrambots.meta.api.objects.File;
 import org.telegram.telegrambots.meta.api.objects.Update;
 import org.telegram.telegrambots.meta.api.objects.Voice;
+import org.telegram.telegrambots.meta.api.objects.commands.BotCommand;
 import org.telegram.telegrambots.meta.api.objects.commands.scope.BotCommandScopeDefault;
 import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
 
 import javax.annotation.PostConstruct;
+import java.util.List;
 
 @Slf4j
 @Component
 @RequiredArgsConstructor // @ - генерирует конструктор, автоматически инициализирующий все final поля.
-public class TelegramBot extends TelegramLongPollingBot implements BotCommands {
+public class TelegramBot extends TelegramLongPollingBot {
 
     private final VoiceSaver voiceSaver;
     private final MessageSender messageSender;
@@ -68,8 +70,13 @@ public class TelegramBot extends TelegramLongPollingBot implements BotCommands {
 
     @PostConstruct // @ - вызывает метод после после завершения конструктора и автоматической инициализации полей с помощью Lombok
     private void setCommands() {
+        List<BotCommand> commands = List.of(
+                new BotCommand(BotCommands.START_COMMAND.getCommand(), BotCommands.START_COMMAND.getDescription()),
+                new BotCommand(BotCommands.HELP_COMMAND.getCommand(), BotCommands.HELP_COMMAND.getDescription()),
+                new BotCommand(BotCommands.SETTING_COMMAND.getCommand(), BotCommands.SETTING_COMMAND.getDescription())
+        );
         try {
-            execute(new SetMyCommands(LIST_OF_COMMANDS, new BotCommandScopeDefault(), null));
+            execute(new SetMyCommands(commands, new BotCommandScopeDefault(), null));
         } catch (TelegramApiException e) {
             log.error("Error setting bot command list: {}", e.getMessage());
         }

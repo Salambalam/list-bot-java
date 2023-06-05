@@ -9,32 +9,46 @@ import org.springframework.stereotype.Component;
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
 import org.telegram.telegrambots.meta.api.objects.Update;
 
+import java.util.Optional;
+
 
 @Component
 @RequiredArgsConstructor
 @Slf4j
-public class TextHandler extends MessageCreator implements MessageHandler, BotCommands {
+public class TextHandler implements MessageHandler{
     private final UserService userService;
     @Override
     public SendMessage send(Update update) {
         return sendTextMessage(update);
     }
 
+    @Override
+    public boolean canSend(Update update) {
+        if(update.hasMessage()) {
+            return update.getMessage().hasText();
+        }
+        return false;
+    }
+
     private SendMessage sendTextMessage(Update update) {
         long chatId = update.getMessage().getChatId();
-        switch (update.getMessage().getText()) {
+        Optional<BotCommands> command = BotCommands.compareCommand(update.getMessage().getText());
+        if(command.isEmpty()){
+            return null;
+        }
+        switch (command.get()) {
             case START_COMMAND -> {
                 userService.saveUser(update.getMessage());
-                return startCommandReceived(chatId, update.getMessage().getChat().getFirstName());
+                return MessageCreator.startCommandReceived(chatId, update.getMessage().getChat().getFirstName());
             }
             case HELP_COMMAND -> {
-                return helpCommandReceived(chatId);
+                return MessageCreator.helpCommandReceived(chatId);
             }
             case SETTING_COMMAND -> {
-                return settingCommandReceived(chatId);
+                return MessageCreator.settingCommandReceived(chatId);
             }
             default -> {
-                return prepareAndSendMessage(chatId, "Извините, команда не распознана:(");
+                return MessageCreator.prepareAndSendMessage(chatId, "Извините, команда не распознана:(");
             }
         }
     }

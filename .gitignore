@@ -52,6 +52,7 @@ HELP.md
 /src/main/java/io/tbot/ListBot/audioFiles/**
 **application.properties
 **database.properties
+**process.properties
 mvnw.cmd
 mvnw
 .mvn

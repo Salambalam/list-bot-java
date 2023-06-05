@@ -3,6 +3,7 @@ package io.tbot.ListBot.processing;
 import com.theokanning.openai.edit.EditChoice;
 import com.theokanning.openai.edit.EditRequest;
 import com.theokanning.openai.service.OpenAiService;
+import io.tbot.ListBot.command.BotCommands;
 import lombok.NoArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
@@ -12,7 +13,7 @@ import java.util.List;
 
 @Component
 @NoArgsConstructor
-public class RecognizedVoiceToFormattedText implements TextProcessing{
+public class ProcessingVoiceToFormattedText implements TextProcessing{
 
     @Value("${open.ai.token}")
     private String TOKEN;
@@ -33,5 +34,10 @@ public class RecognizedVoiceToFormattedText implements TextProcessing{
         List<EditChoice> editResult = service.createEdit(editRequest).getChoices();
         service.shutdownExecutor();
         return editResult.get(0).getText();
+    }
+
+    @Override
+    public boolean canProcessing(String command) {
+        return command.equals(BotCommands.CORRECT_COMMAND.getCommand());
     }
 }

@@ -1,15 +1,25 @@
 package io.tbot.ListBot.command;
 
-import org.telegram.telegrambots.meta.api.objects.commands.BotCommand;
+import lombok.AllArgsConstructor;
+import lombok.Getter;
 
-import java.util.List;
+import java.util.Arrays;
+import java.util.Optional;
 
-public interface BotCommands {
-    String START_COMMAND = "/start";
-    String SETTING_COMMAND = "/settings";
-    String HELP_COMMAND = "/help";
-    List<BotCommand> LIST_OF_COMMANDS = List.of(
-            new BotCommand(START_COMMAND, "Запустить бота"),
-            new BotCommand(SETTING_COMMAND, "Изменить настройки"),
-            new BotCommand(HELP_COMMAND, "Информация о боте"));
+@Getter
+@AllArgsConstructor
+public enum BotCommands {
+
+    START_COMMAND("/start", "Запустить бота"),
+    SETTING_COMMAND("/setting", "Изменить настройки"),
+    HELP_COMMAND("/help", "Информация о боте"),
+    LIST_COMMAND("LIST", "ГС в список"),
+    CORRECT_COMMAND("CORRECT", "ГС в текст");
+
+    private final String command;
+    private final String description;
+
+    public static Optional<BotCommands> compareCommand(String command){
+        return Arrays.stream(BotCommands.values()).filter(x -> x.getCommand().equals(command)).findFirst();
+    }
 }

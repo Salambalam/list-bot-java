@@ -4,6 +4,7 @@ import com.theokanning.openai.completion.chat.ChatCompletionChoice;
 import com.theokanning.openai.completion.chat.ChatCompletionRequest;
 import com.theokanning.openai.completion.chat.ChatMessage;
 import com.theokanning.openai.service.OpenAiService;
+import io.tbot.ListBot.command.BotCommands;
 import lombok.NoArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
@@ -13,12 +14,13 @@ import java.util.List;
 
 @Component
 @NoArgsConstructor
-public class RecognizedVoiceToListConverter implements TextProcessing{
+public class ProcessingVoiceToListConverter implements TextProcessing{
 
     @Value("${open.ai.token}")
     private String TOKEN;
     private static final String MODEL = "gpt-3.5-turbo";
     private static final String ROLE = "system";
+
     private static final String INSTRUCTION = """
             Прочитайте текст, который нужно обработать. Текст будет предоставлен в кавычках.
             Создайте список задач, основываясь на предоставленном тексте. Каждое новое дело должно начинаться с глагола, но будьте внимательны и логически изменяйте слова, чтобы передать правильный смысл.
@@ -46,7 +48,6 @@ public class RecognizedVoiceToListConverter implements TextProcessing{
             Текст для обработки: "Хочу купить"
 
             Ответ: "Пожалуйста, предоставьте более подробную информацию.\"""";
-
     @Override
     public synchronized String processText(String text) {
         OpenAiService service = new OpenAiService(TOKEN, Duration.ofSeconds(60));
@@ -54,12 +55,16 @@ public class RecognizedVoiceToListConverter implements TextProcessing{
                 .model(MODEL)
                 .messages(List.of(new ChatMessage(ROLE, INSTRUCTION + "\"" + text + "\"")))
                 .maxTokens(1000)
-                .user("test")
                 .temperature(0.1)
                 .n(1)
                 .build();
         List<ChatCompletionChoice> result = service.createChatCompletion(chatCompletionRequest).getChoices();
         service.shutdownExecutor();
         return result.get(0).getMessage().getContent();
+    }
+
+    @Override
+    public boolean canProcessing(String command) {
+        return command.equals(BotCommands.LIST_COMMAND.getCommand());
     }
 }
