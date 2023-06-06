@@ -12,6 +12,11 @@ import org.springframework.stereotype.Component;
 import java.time.Duration;
 import java.util.List;
 
+/**
+ * Класс ProcessingVoiceToFormattedText.
+ * Реализация интерфейса TextProcessing для обработки голосового текста и преобразования его в форматированный текст.
+ * Для преобразования использует api OpenAI.
+ */
 @Component
 @Slf4j
 @NoArgsConstructor
@@ -23,6 +28,12 @@ public class ProcessingVoiceToFormattedText implements TextProcessing {
     private static final String INSTRUCTION = "Split text into sentences. Correct punctuation errors.";
     private static final String MODEL = "text-davinci-edit-001";
 
+    /**
+     * Метод processText.
+     * Обрабатывает голосовой текст и преобразует его в форматированный текст с помощью сервиса OpenAI.
+     *
+     * @return Преобразованный форматированный текст.
+     */
     @Override
     public synchronized String processText(String text) {
         OpenAiService service = new OpenAiService(openAiToken, Duration.ofSeconds(60));
@@ -38,6 +49,12 @@ public class ProcessingVoiceToFormattedText implements TextProcessing {
         return editResult.get(0).getText();
     }
 
+    /**
+     * Метод canProcessing.
+     * Проверяет, команду которая определяет способ обработки.
+     *
+     * @return true, если класс может обработать команду(CORRECT); false в противном случае.
+     */
     @Override
     public boolean canProcessing(String command) {
         return command.equals(BotCommands.CORRECT_COMMAND.getCommand());

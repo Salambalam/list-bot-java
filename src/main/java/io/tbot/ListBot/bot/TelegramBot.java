@@ -22,6 +22,11 @@ import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
 import javax.annotation.PostConstruct;
 import java.util.List;
 
+/**
+ * Описание класса TelegramBot.
+ * Класс, представляющий Telegram-бота, использующего Long Polling для получения обновлений.
+ * Обрабатывает голосовые сообщения, сохраняет их и отправляет текстовые сообщения.
+ */
 @Slf4j
 @Component
 @RequiredArgsConstructor
@@ -34,6 +39,7 @@ public class TelegramBot extends TelegramLongPollingBot {
     @Value("${bot.token}")
     private String botToken;
 
+    @Getter
     @Value("${bot.name}")
     private String botName;
 
@@ -42,6 +48,12 @@ public class TelegramBot extends TelegramLongPollingBot {
         return botName;
     }
 
+    /**
+     * Метод для обработки полученных обновлений.
+     * Если обновление содержит голосовое сообщение, сохраняет его.
+     *
+     * @param update Объект с информацией об обновлении.
+     */
     @Override
     public void onUpdateReceived(Update update) {
         if (update.hasMessage() && update.getMessage().hasVoice()) {
@@ -50,6 +62,12 @@ public class TelegramBot extends TelegramLongPollingBot {
         executeMessage(messageSender.getSendMessage(update));
     }
 
+    /**
+     * Вспомогательный метод для выполнения отправки сообщения.
+     * Обрабатывает возможные исключения, которые могут возникнуть при отправке сообщения.
+     *
+     * @param message Сообщение для отправки.
+     */
     private void executeMessage(SendMessage message) {
         try {
             execute(message);
@@ -58,6 +76,10 @@ public class TelegramBot extends TelegramLongPollingBot {
         }
     }
 
+    /**
+     * Метод для сохранения голосового сообщения.
+     * Получает файл голосового сообщения по его идентификатору и сохраняет его с помощью VoiceSaver.
+     */
     public void saveVoice(Voice voice, long chatId) {
         try {
             File file = downloadVoiceFile(voice.getFileId());
@@ -67,10 +89,20 @@ public class TelegramBot extends TelegramLongPollingBot {
         }
     }
 
+    /**
+     * Вспомогательный метод для загрузки файла голосового сообщения.
+     *
+     * @return Загруженный файл голосового сообщения.
+     * @throws TelegramApiException Если произошла ошибка при загрузке файла.
+     */
     private File downloadVoiceFile(String fileId) throws TelegramApiException {
         return execute(new GetFile(fileId));
     }
 
+    /**
+     * Метод для установки списка команд бота.
+     * Устанавливает список команд бота с помощью SetMyCommands.
+     */
     @PostConstruct
     private void setCommands() {
         List<BotCommand> commands = List.of(

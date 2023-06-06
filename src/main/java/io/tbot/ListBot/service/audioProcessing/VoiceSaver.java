@@ -14,6 +14,9 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.StandardCopyOption;
 
+/**
+ * Класс VoiceSaver для сохранения Голосового сообщения, для дальнейшей обработки.
+ */
 @Slf4j
 @Service
 @RequiredArgsConstructor
@@ -25,6 +28,13 @@ public class VoiceSaver {
 
     private static final String SAVE_VOICE_PATH = "src/main/java/io/tbot/ListBot/audioFiles/";
 
+    /**
+     * Метод save выполняет сохранение аудиофайла.
+     * Также выполняется добавления сущности Audio в БД.
+     *
+     * @param file   аудиофайл
+     * @param chatId идентификатор чата
+     */
     public synchronized void save(File file, long chatId) {
         String fileUrl = "https://api.telegram.org/file/bot" + botToken + "/" + file.getFilePath();
         String savePath = SAVE_VOICE_PATH + chatId + ".ogg";

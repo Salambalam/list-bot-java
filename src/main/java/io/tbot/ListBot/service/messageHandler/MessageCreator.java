@@ -4,30 +4,36 @@ import com.vdurmont.emoji.EmojiParser;
 import io.tbot.ListBot.command.InlineButtons;
 import lombok.NoArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.stereotype.Component;
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
 
+/**
+ * MessageCreator функциональный класс для сборки сообщения.
+ */
 @Slf4j
 @NoArgsConstructor
-@Component
 public class MessageCreator {
 
-    private static final InlineButtons buttons = new InlineButtons();
-
     private static final String HELP_TEXT = """
-            <b>Список команд бота:</b>
+        <b>Список команд бота:</b>
 
-            /start - перезапустить бота
-            /help - список всех доступных команд
-            /setting - выбор параметра распознавания""";
+        /start - перезапустить бота
+        /help - список всех доступных команд
+        /setting - выбор параметра распознавания""";
 
     private static final String SETTING_TEXT = "Изменить параметры распознавания";
 
     private static final String NOT_FOUND_COMMAND_TEXT = """
-            Пока что я не знаю такой команды.
-            
-            Вы можете посмотреть список доступных команд тут -> /help""";
+        Пока что я не знаю такой команды.
+        
+        Вы можете посмотреть список доступных команд тут -> /help""";
 
+    /**
+     * Метод startCommandReceived создает сообщение для команды /start.
+     *
+     * @param chatId идентификатор чата
+     * @param name   имя пользователя
+     * @return объект SendMessage для отправки сообщения
+     */
     public static SendMessage startCommandReceived(long chatId, String name) {
         SendMessage message = new SendMessage();
         message.setChatId(chatId);
@@ -38,10 +44,16 @@ public class MessageCreator {
         message.setText(answer);
         message.setParseMode("HTML");
         log.info("Replied for user " + name);
-        message.setReplyMarkup(buttons.startInlineMarkup());
+        message.setReplyMarkup(InlineButtons.startInlineMarkup());
         return message;
     }
 
+    /**
+     * Метод helpCommandReceived создает сообщение для команды /help.
+     *
+     * @param chatId идентификатор чата
+     * @return объект SendMessage для отправки сообщения
+     */
     public static SendMessage helpCommandReceived(long chatId) {
         SendMessage message = new SendMessage();
         message.setChatId(chatId);
@@ -50,18 +62,31 @@ public class MessageCreator {
         return message;
     }
 
+    /**
+     * Метод settingCommandReceived создает сообщение для команды /setting.
+     *
+     * @param chatId идентификатор чата
+     * @return объект SendMessage для отправки сообщения
+     */
     public static SendMessage settingCommandReceived(long chatId) {
         SendMessage sendMessage = new SendMessage();
         sendMessage.setChatId(chatId);
         sendMessage.setText(SETTING_TEXT);
-        sendMessage.setReplyMarkup(buttons.settingsInlineMarkup());
+        sendMessage.setReplyMarkup(InlineButtons.settingsInlineMarkup());
         return sendMessage;
     }
 
+    /**
+     * Метод notFoundCommand создает сообщение для неизвестной команды.
+     *
+     * @param chatId идентификатор чата
+     * @return объект SendMessage для отправки сообщения
+     */
     public static SendMessage notFoundCommand(long chatId) {
         SendMessage sendMessage = new SendMessage();
         sendMessage.setChatId(chatId);
         sendMessage.setText(NOT_FOUND_COMMAND_TEXT);
         return sendMessage;
     }
+
 }

@@ -10,6 +10,10 @@ import org.telegram.telegrambots.meta.api.objects.Update;
 
 import java.util.Optional;
 
+/**
+
+ Класс CallbackHandler отвечает за обработку коллбэк-запросов.
+ */
 @Component
 @RequiredArgsConstructor
 public class CallbackHandler implements MessageHandler {
@@ -26,11 +30,19 @@ public class CallbackHandler implements MessageHandler {
 
             Вы можете изменить свой выбор в настройках /settings""";
 
+    /**
+     * Метод send вызывает handleCallbackQuery для обработки коллбэк-запроса и возвращает объект SendMessage для отправки сообщения.
+     * @param update объект Update с информацией о сообщении
+     * @return объект SendMessage для отправки сообщения
+     */
     @Override
     public SendMessage send(Update update) {
         return handleCallbackQuery(update);
     }
 
+    /**
+     * Метод handleCallbackQuery определяет команду из запроса и вызывает соответствующий метод для создания определённого SendMessage.
+     */
     private SendMessage handleCallbackQuery(Update update) {
         long chatId = update.getCallbackQuery().getMessage().getChatId();
         Optional<BotCommands> command = BotCommands.compareCommand(update.getCallbackQuery().getData());
@@ -43,6 +55,12 @@ public class CallbackHandler implements MessageHandler {
         }).orElse(null);
     }
 
+    /**
+     * Метод listCommandReceived создает сообщение для команды LIST.
+     *
+     * @param chatId идентификатор чата
+     * @return объект SendMessage для отправки сообщения
+     */
     private SendMessage listCommandReceived(long chatId) {
         SendMessage sendMessage = new SendMessage();
         sendMessage.setChatId(chatId);
@@ -52,6 +70,12 @@ public class CallbackHandler implements MessageHandler {
         return sendMessage;
     }
 
+    /**
+     * Метод listCommandReceived создает сообщение для команды CORRECT.
+     *
+     * @param chatId идентификатор чата
+     * @return объект SendMessage для отправки сообщения
+     */
     private SendMessage correctCommandReceived(long chatId) {
         SendMessage sendMessage = new SendMessage();
         sendMessage.setChatId(chatId);
@@ -61,6 +85,11 @@ public class CallbackHandler implements MessageHandler {
         return sendMessage;
     }
 
+    /**
+
+     Метод canSend проверяет, может ли данный обработчик обработать сообщение.
+     @return true, если обработчик может обработать сообщение, иначе false
+     */
     @Override
     public boolean canSend(Update update) {
         return update.hasCallbackQuery();

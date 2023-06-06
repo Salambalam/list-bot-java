@@ -12,6 +12,11 @@ import org.springframework.stereotype.Component;
 import java.time.Duration;
 import java.util.List;
 
+/**
+ * Класс ProcessingVoiceToListConverter.
+ * Реализация интерфейса TextProcessing для обработки голосового текста и преобразования его в список задач.
+ * Для преобразования использует api OpenAI.
+ */
 @Component
 @NoArgsConstructor
 public class ProcessingVoiceToListConverter implements TextProcessing{
@@ -20,7 +25,9 @@ public class ProcessingVoiceToListConverter implements TextProcessing{
     private String openAiToken;
     private static final String MODEL = "gpt-3.5-turbo";
     private static final String ROLE = "system";
-
+    /**
+     * Промпт для используемой модели.
+     */
     private static final String INSTRUCTION = """
             Прочитайте текст, который нужно обработать. Текст будет предоставлен в кавычках.
             Создайте список задач, основываясь на предоставленном тексте. Каждое новое дело должно начинаться с глагола, но будьте внимательны и логически изменяйте слова, чтобы передать правильный смысл.
@@ -48,6 +55,11 @@ public class ProcessingVoiceToListConverter implements TextProcessing{
             Текст для обработки: "Хочу купить"
 
             Ответ: "Пожалуйста, предоставьте более подробную информацию.\"""";
+
+    /**
+     * Метод processText.
+     * Обрабатывает голосовой текст и преобразует его в список задач с помощью сервиса OpenAI.
+     */
     @Override
     public synchronized String processText(String text) {
         OpenAiService service = new OpenAiService(openAiToken, Duration.ofSeconds(60));
@@ -63,6 +75,12 @@ public class ProcessingVoiceToListConverter implements TextProcessing{
         return result.get(0).getMessage().getContent();
     }
 
+    /**
+     * Метод canProcessing.
+     * Проверяет, команду которая определяет способ обработки.
+     *
+     * @return true, если класс может обработать команду(LIST); false в противном случае.
+     */
     @Override
     public boolean canProcessing(String command) {
         return command.equals(BotCommands.LIST_COMMAND.getCommand());

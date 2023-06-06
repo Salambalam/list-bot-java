@@ -17,6 +17,12 @@ public class MessageSender {
 
     private final List<MessageHandler> handlers;
 
+    /**
+     * Метод getSendMessage определят тип сообщения и вызывает соответствующий метод для обработки сообщения.
+     *
+     * @param update объект Update с информацией о сообщении
+     * @return объект SendMessage для отправки сообщения
+     */
     public SendMessage getSendMessage(Update update) {
         Optional<MessageHandler> handler = handlers.stream()
                 .filter(messageHandler -> messageHandler.canSend(update))

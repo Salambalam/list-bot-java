@@ -13,7 +13,10 @@ import javax.sound.sampled.AudioSystem;
 import javax.sound.sampled.UnsupportedAudioFileException;
 import java.io.File;
 import java.io.IOException;
-
+/**
+ * Класс VoiceDecoder для декодирования речи из аудиофайла в текст.
+ * Для декодирования используется библиотека Vosk.
+ */
 @Component
 @Slf4j
 @RequiredArgsConstructor
@@ -22,6 +25,12 @@ public class VoiceDecoder {
     private final JsonParser parser;
     private static final String MODEL_PATH = "src/main/resources/model";
 
+    /**
+
+     Метод speechToText выполняет декодирование речи из аудиофайла в текст.
+
+     @return распознанный текст
+     */
     public synchronized String speechToText() {
         String wavFilePath = oggToWavConverter.convert();
         StringBuilder result = new StringBuilder();

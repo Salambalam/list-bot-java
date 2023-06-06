@@ -4,6 +4,9 @@ import lombok.Data;
 import org.json.JSONObject;
 import org.springframework.stereotype.Component;
 
+/**
+ * Класс JsonParser предназначен для парсинга текста, переданного из модели распознования vosk.
+ */
 @Data
 @Component
 public class JsonParser {

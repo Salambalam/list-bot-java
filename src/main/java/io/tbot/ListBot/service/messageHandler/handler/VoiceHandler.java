@@ -11,6 +11,10 @@ import org.telegram.telegrambots.meta.api.objects.Update;
 import java.util.List;
 import java.util.Optional;
 
+/**
+
+ Обработчик сообщений типа голосовое сообщение.
+ */
 @RequiredArgsConstructor
 @Component
 public class VoiceHandler implements MessageHandler {
@@ -19,11 +23,20 @@ public class VoiceHandler implements MessageHandler {
     private final UserService userService;
     private final List<TextProcessing> handlers;
 
+    /**
+
+     Метод send обрабатывает и отправляет ответное сообщение на голосовое сообщение.
+     @param update объект Update с информацией о сообщении
+     @return объект SendMessage для отправки сообщения
+     */
     @Override
     public SendMessage send(Update update) {
         return sendVoiceMessage(update.getMessage().getChatId());
     }
+    /**
 
+     Метод canSend проверяет, может ли данный обработчик обработать сообщение.
+     */
     @Override
     public boolean canSend(Update update) {
         if (update.hasMessage()) {
@@ -32,6 +45,11 @@ public class VoiceHandler implements MessageHandler {
         return false;
     }
 
+    /**
+     * Метод sendVoiceMessage определяет способ обработки сообщения и выполняет его.
+     *
+     * @return SendMessage
+     */
     private SendMessage sendVoiceMessage(long chatId) {
         SendMessage message = new SendMessage();
         String textToSend = voiceDecoder.speechToText();

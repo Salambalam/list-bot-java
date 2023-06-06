@@ -14,6 +14,10 @@ import ws.schild.jave.encode.EncodingAttributes;
 import java.io.File;
 import java.util.List;
 
+/**
+
+ Класс OggToWavConverter для конвертации аудиофайлов формата OGG в формат WAV.
+ */
 @Slf4j
 @Component
 @RequiredArgsConstructor
@@ -21,6 +25,12 @@ public class OggToWavConverter {
     private static final String FILE_PATH = "src/main/java/io/tbot/ListBot/audioFiles/";
     private final AudioService audioService;
 
+    /**
+
+     Метод convert выполняет конвертацию аудиофайлов формата OGG в формат WAV.
+
+     @return путь к конвертированному аудиофайлу формата WAV
+     */
     public synchronized String convert() {
         List<Audio> audioList = audioService.findAllOgg();
 
@@ -28,8 +38,7 @@ public class OggToWavConverter {
         String newPath = FILE_PATH + audio.getChatId() + ".wav";
         String oldPath = audio.getPath();
 
-        try {
-            // Задание целевого формата аудио
+        try { // Задание целевого формата аудио
             AudioAttributes audioAttributes = new AudioAttributes();
             audioAttributes.setCodec("pcm_s16le"); // Линейное кодирование, 16-битный формат
             audioAttributes.setBitRate(16000); // Частота дискретизации 16 кГц

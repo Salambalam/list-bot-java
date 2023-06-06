@@ -10,25 +10,29 @@ import org.telegram.telegrambots.meta.api.objects.Update;
 
 import java.util.Optional;
 
+/**
+ * Обработчик сообщений типа текст.
+ */
 @Component
 @RequiredArgsConstructor
 public class TextHandler implements MessageHandler {
 
     private final UserService userService;
 
+    /**
+     * Метод send обрабатывает и отправляет ответное сообщение на сообщение типа текст.
+     *
+     * @param update объект Update с информацией о сообщении
+     * @return объект SendMessage для отправки сообщения
+     */
     @Override
     public SendMessage send(Update update) {
         return sendTextMessage(update);
     }
 
-    @Override
-    public boolean canSend(Update update) {
-        if (update.hasMessage()) {
-            return update.getMessage().hasText();
-        }
-        return false;
-    }
-
+    /**
+     * Метод sendTextMessage определяет команду из текста сообщения и вызывает соответствующий метод для создания определённого SendMessage.
+     */
     private SendMessage sendTextMessage(Update update) {
         long chatId = update.getMessage().getChatId();
         Optional<BotCommands> command = BotCommands.compareCommand(update.getMessage().getText());
@@ -50,5 +54,16 @@ public class TextHandler implements MessageHandler {
                 return MessageCreator.notFoundCommand(chatId);
             }
         }
+    }
+
+    /**
+     * Метод canSend проверяет, может ли данный обработчик обработать сообщение.
+     */
+    @Override
+    public boolean canSend(Update update) {
+        if (update.hasMessage()) {
+            return update.getMessage().hasText();
+        }
+        return false;
     }
 }
