@@ -19,7 +19,6 @@ public class VoiceHandler implements MessageHandler {
     private final UserService userService;
     private final List<TextProcessing> handlers;
 
-
     @Override
     public SendMessage send(Update update) {
         return sendVoiceMessage(update.getMessage().getChatId());
@@ -27,7 +26,7 @@ public class VoiceHandler implements MessageHandler {
 
     @Override
     public boolean canSend(Update update) {
-        if(update.hasMessage()){
+        if (update.hasMessage()) {
             return update.getMessage().hasVoice();
         }
         return false;
@@ -40,7 +39,7 @@ public class VoiceHandler implements MessageHandler {
         Optional<TextProcessing> handler = handlers.stream()
                 .filter(textProcessing -> textProcessing.canProcessing(userService.getCommandOfRecognized(chatId)))
                 .findFirst();
-        if(handler.isEmpty()){
+        if (handler.isEmpty()) {
             return null;
         }
         String result = handler.get().processText(textToSend);
@@ -48,5 +47,4 @@ public class VoiceHandler implements MessageHandler {
         message.setText(result);
         return message;
     }
-
 }

@@ -1,5 +1,6 @@
 package io.tbot.ListBot.service;
 
+import io.tbot.ListBot.command.BotCommands;
 import io.tbot.ListBot.model.User;
 import io.tbot.ListBot.repositories.UserRepository;
 import lombok.AllArgsConstructor;
@@ -22,22 +23,21 @@ public class UserService {
             user.setFirstName(message.getChat().getFirstName());
             user.setLastName(message.getChat().getLastName());
             user.setUserName(message.getChat().getUserName());
-            user.setCommandForRecognized("LIST");
+            user.setCommandForRecognized(BotCommands.LIST_COMMAND.getCommand());
             userRepository.save(user);
-            log.info("INFO : Saving user with chatId: {}", chatId);
+            log.info("Saving user with chatId: {}", chatId);
         }
     }
 
     public void setCommandRecognized(String commandRecognized, long chatId) {
-        User user = userRepository.findByChatId(chatId);
-        if (user != null) {
-            user.setCommandForRecognized(commandRecognized);
-            userRepository.save(user);
-        }
+        User user = userRepository.findById(chatId).orElseThrow(() -> new IllegalArgumentException("User not found"));
+        user.setCommandForRecognized(commandRecognized);
+        userRepository.save(user);
     }
 
     public String getCommandOfRecognized(long chatId) {
-        User user = userRepository.findByChatId(chatId);
-        return user != null ? user.getCommandForRecognized() : null;
+        return userRepository.findById(chatId)
+                .map(User::getCommandForRecognized)
+                .orElse(null);
     }
 }

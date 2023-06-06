@@ -4,19 +4,18 @@ import io.tbot.ListBot.command.BotCommands;
 import io.tbot.ListBot.service.UserService;
 import io.tbot.ListBot.service.messageHandler.MessageCreator;
 import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
 import org.telegram.telegrambots.meta.api.objects.Update;
 
 import java.util.Optional;
 
-
 @Component
 @RequiredArgsConstructor
-@Slf4j
-public class TextHandler implements MessageHandler{
+public class TextHandler implements MessageHandler {
+
     private final UserService userService;
+
     @Override
     public SendMessage send(Update update) {
         return sendTextMessage(update);
@@ -24,7 +23,7 @@ public class TextHandler implements MessageHandler{
 
     @Override
     public boolean canSend(Update update) {
-        if(update.hasMessage()) {
+        if (update.hasMessage()) {
             return update.getMessage().hasText();
         }
         return false;
@@ -33,7 +32,7 @@ public class TextHandler implements MessageHandler{
     private SendMessage sendTextMessage(Update update) {
         long chatId = update.getMessage().getChatId();
         Optional<BotCommands> command = BotCommands.compareCommand(update.getMessage().getText());
-        if(command.isEmpty()){
+        if (command.isEmpty()) {
             return null;
         }
         switch (command.get()) {
@@ -48,9 +47,8 @@ public class TextHandler implements MessageHandler{
                 return MessageCreator.settingCommandReceived(chatId);
             }
             default -> {
-                return MessageCreator.prepareAndSendMessage(chatId, "Извините, команда не распознана:(");
+                return MessageCreator.notFoundCommand(chatId);
             }
         }
     }
-
 }

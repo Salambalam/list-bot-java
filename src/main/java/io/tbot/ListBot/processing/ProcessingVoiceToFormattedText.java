@@ -5,6 +5,7 @@ import com.theokanning.openai.edit.EditRequest;
 import com.theokanning.openai.service.OpenAiService;
 import io.tbot.ListBot.command.BotCommands;
 import lombok.NoArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
@@ -12,18 +13,19 @@ import java.time.Duration;
 import java.util.List;
 
 @Component
+@Slf4j
 @NoArgsConstructor
-public class ProcessingVoiceToFormattedText implements TextProcessing{
+public class ProcessingVoiceToFormattedText implements TextProcessing {
 
     @Value("${open.ai.token}")
-    private String TOKEN;
+    private String openAiToken;
+
     private static final String INSTRUCTION = "Split text into sentences. Correct punctuation errors.";
     private static final String MODEL = "text-davinci-edit-001";
 
-
     @Override
-    public synchronized String processText(String text){
-        OpenAiService service = new OpenAiService(TOKEN, Duration.ofSeconds(60));
+    public synchronized String processText(String text) {
+        OpenAiService service = new OpenAiService(openAiToken, Duration.ofSeconds(60));
         EditRequest editRequest = EditRequest.builder()
                 .model(MODEL)
                 .input(text)

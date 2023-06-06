@@ -18,10 +18,10 @@ import java.util.List;
 @Component
 @RequiredArgsConstructor
 public class OggToWavConverter {
-    String FILE_PATH = "src/main/java/io/tbot/ListBot/audioFiles/";
+    private static final String FILE_PATH = "src/main/java/io/tbot/ListBot/audioFiles/";
     private final AudioService audioService;
 
-    public synchronized String convent() {
+    public synchronized String convert() {
         List<Audio> audioList = audioService.findAllOgg();
 
         Audio audio = audioList.get(0);
@@ -51,10 +51,9 @@ public class OggToWavConverter {
         audio.setPath(newPath);
         audioService.save(audio);
         File oldFile = new File(oldPath);
-        if(oldFile.delete()){
-            log.info("INFO delete OGG file" + oldPath);
+        if (oldFile.delete()) {
+            log.info("Deleted OGG file: " + oldPath);
         }
         return newPath;
     }
 }
-

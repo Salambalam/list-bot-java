@@ -17,7 +17,7 @@ import java.util.List;
 public class ProcessingVoiceToListConverter implements TextProcessing{
 
     @Value("${open.ai.token}")
-    private String TOKEN;
+    private String openAiToken;
     private static final String MODEL = "gpt-3.5-turbo";
     private static final String ROLE = "system";
 
@@ -50,7 +50,7 @@ public class ProcessingVoiceToListConverter implements TextProcessing{
             Ответ: "Пожалуйста, предоставьте более подробную информацию.\"""";
     @Override
     public synchronized String processText(String text) {
-        OpenAiService service = new OpenAiService(TOKEN, Duration.ofSeconds(60));
+        OpenAiService service = new OpenAiService(openAiToken, Duration.ofSeconds(60));
         ChatCompletionRequest chatCompletionRequest = ChatCompletionRequest.builder()
                 .model(MODEL)
                 .messages(List.of(new ChatMessage(ROLE, INSTRUCTION + "\"" + text + "\"")))

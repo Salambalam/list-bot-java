@@ -12,24 +12,26 @@ import java.util.Optional;
 
 @Component
 @RequiredArgsConstructor
-public class CallbackHandler implements MessageHandler{
+public class CallbackHandler implements MessageHandler {
 
     private final UserService userService;
 
-    private static final String listCommandReceivedText = """
-                <b>Вы выбрали способ обработки: Список. Отправьте голосовое сообщение.</b>
+    private static final String LIST_COMMAND_RECEIVED_TEXT = """
+            <b>Вы выбрали способ обработки: Список. Отправьте голосовое сообщение.</b>
 
-                Можете изменить свой выбор в настройках /settings""";
+            Можете изменить свой выбор в настройках /settings""";
 
-    public static final String correctCommandReceivedText = """
-                <b>Вы выбрали способ обработки: Преобразовать в текст. Отправьте голосовое сообщение.</b>
+    private static final String CORRECT_COMMAND_RECEIVED_TEXT = """
+            <b>Вы выбрали способ обработки: Преобразовать в текст. Отправьте голосовое сообщение.</b>
 
-                Вы можете изменить свой выбор в настройках /settings""";
+            Вы можете изменить свой выбор в настройках /settings""";
+
     @Override
     public SendMessage send(Update update) {
-        return handCallbackQuery(update);
+        return handleCallbackQuery(update);
     }
-    private SendMessage handCallbackQuery(Update update){
+
+    private SendMessage handleCallbackQuery(Update update) {
         long chatId = update.getCallbackQuery().getMessage().getChatId();
         Optional<BotCommands> command = BotCommands.compareCommand(update.getCallbackQuery().getData());
         return command.map(botCommands -> switch (botCommands) {
@@ -44,7 +46,7 @@ public class CallbackHandler implements MessageHandler{
     private SendMessage listCommandReceived(long chatId) {
         SendMessage sendMessage = new SendMessage();
         sendMessage.setChatId(chatId);
-        sendMessage.setText(listCommandReceivedText);
+        sendMessage.setText(LIST_COMMAND_RECEIVED_TEXT);
         sendMessage.setParseMode("HTML");
         userService.setCommandRecognized(BotCommands.LIST_COMMAND.getCommand(), chatId);
         return sendMessage;
@@ -53,7 +55,7 @@ public class CallbackHandler implements MessageHandler{
     private SendMessage correctCommandReceived(long chatId) {
         SendMessage sendMessage = new SendMessage();
         sendMessage.setChatId(chatId);
-        sendMessage.setText(correctCommandReceivedText);
+        sendMessage.setText(CORRECT_COMMAND_RECEIVED_TEXT);
         sendMessage.setParseMode("HTML");
         userService.setCommandRecognized(BotCommands.CORRECT_COMMAND.getCommand(), chatId);
         return sendMessage;

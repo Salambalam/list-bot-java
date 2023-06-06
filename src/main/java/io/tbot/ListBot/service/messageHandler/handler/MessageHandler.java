@@ -5,6 +5,5 @@ import org.telegram.telegrambots.meta.api.objects.Update;
 
 public interface MessageHandler {
     SendMessage send(Update update);
-
      boolean canSend(Update update);
 }

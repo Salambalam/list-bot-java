@@ -24,7 +24,7 @@ import java.util.List;
 
 @Slf4j
 @Component
-@RequiredArgsConstructor // @ - генерирует конструктор, автоматически инициализирующий все final поля.
+@RequiredArgsConstructor
 public class TelegramBot extends TelegramLongPollingBot {
 
     private final VoiceSaver voiceSaver;
@@ -60,15 +60,18 @@ public class TelegramBot extends TelegramLongPollingBot {
 
     public void saveVoice(Voice voice, long chatId) {
         try {
-            GetFile getFileRequest = new GetFile(voice.getFileId());
-            File file = execute(getFileRequest);
+            File file = downloadVoiceFile(voice.getFileId());
             voiceSaver.save(file, chatId);
         } catch (TelegramApiException e) {
             log.error("Error occurred while getting voice file: {}", e.getMessage());
         }
     }
 
-    @PostConstruct // @ - вызывает метод после после завершения конструктора и автоматической инициализации полей с помощью Lombok
+    private File downloadVoiceFile(String fileId) throws TelegramApiException {
+        return execute(new GetFile(fileId));
+    }
+
+    @PostConstruct
     private void setCommands() {
         List<BotCommand> commands = List.of(
                 new BotCommand(BotCommands.START_COMMAND.getCommand(), BotCommands.START_COMMAND.getDescription()),

@@ -17,16 +17,18 @@ import java.io.IOException;
 @Component
 @Slf4j
 @RequiredArgsConstructor
-public class VoiceDecoder{
-
+public class VoiceDecoder {
     private final OggToWavConverter oggToWavConverter;
-    private final JsonParser parser = new JsonParser();
+    private final JsonParser parser;
+    private static final String MODEL_PATH = "src/main/resources/model";
 
-    public synchronized String speechToText(){
-        String WAV_FILE_PATH = oggToWavConverter.convent();
+    public synchronized String speechToText() {
+        String wavFilePath = oggToWavConverter.convert();
         StringBuilder result = new StringBuilder();
-        try (Model model = new Model("src/main/resources/model");
-            AudioInputStream ais = AudioSystem.getAudioInputStream(new File(WAV_FILE_PATH))) {
+
+        try (Model model = new Model(MODEL_PATH);
+             AudioInputStream ais = AudioSystem.getAudioInputStream(new File(wavFilePath))) {
+
             AudioFormat targetFormat = new AudioFormat(16000, 16, 1, true, false);
             AudioInputStream convertedAIS = AudioSystem.getAudioInputStream(targetFormat, ais);
             byte[] buffer = new byte[4096];
@@ -40,10 +42,9 @@ public class VoiceDecoder{
             }
             result.append(parser.parseToString(recognizer.getFinalResult()));
         } catch (UnsupportedAudioFileException | IOException e) {
-            log.error("UnsupportedAudioFileException" + e);
+            log.error("Error decoding audio: " + e.getMessage());
         }
 
         return result.toString();
     }
-
 }

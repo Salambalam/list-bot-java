@@ -13,18 +13,19 @@ import java.util.Optional;
 @Slf4j
 @Component
 @RequiredArgsConstructor
-public class MessageSender{
+public class MessageSender {
 
     private final List<MessageHandler> handlers;
-    public SendMessage getSendMessage(Update update){
+
+    public SendMessage getSendMessage(Update update) {
         Optional<MessageHandler> handler = handlers.stream()
                 .filter(messageHandler -> messageHandler.canSend(update))
                 .findFirst();
-        if (handler.isEmpty()) {
+
+        if (handler.isPresent()) {
+            return handler.get().send(update);
+        } else {
             return MessageCreator.notFoundCommand(update.getMessage().getChatId());
         }
-        return handler.get().send(update);
     }
-
-
 }
